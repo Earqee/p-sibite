@@ -7,7 +7,10 @@
 #include <string.h>
 #include <errno.h>
 #include <netdb.h>
+#include <arpa/inet.h>
 #include <vector>
+#include <thread>
+#include <chrono>
 
 /*Common namespaces */
 #define INVALID -1
