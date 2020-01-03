@@ -22,7 +22,7 @@ private:
         Log log("Opening of socket");
 
         /* socketData.socketFD = socket(AF_INET6, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0); */
-        socketData.refSocketFD() = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
+        socketData.refSocketFD() = socket(PF_INET6, SOCK_STREAM, IPPROTO_TCP);
 
         if(socketData.refSocketFD() == INVALID) {
             log.logCannot();
