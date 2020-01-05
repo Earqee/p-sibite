@@ -1,13 +1,13 @@
 #include "../util/header.h"
 #include "../util/log.h"
 #include "../socket/socketdata.h"
-#include "../socket/localsocket.h"
+#include "../socket/clientsocket.h"
 
 class Client {
 
 private:
     int connectionStatus = INVALID;
-    Socket socket = Socket(PORT);
+    ClientSocket socket = ClientSocket(PORT);
 
 public:
     bool MakeConnection() {
@@ -45,7 +45,7 @@ public:
         return true;
     }
 
-    bool SendData(const char *data) {
+    bool TransmitData(const char *data) {
         Log log("Sending data.");
 
         if(connectionStatus == INVALID)
@@ -57,6 +57,9 @@ public:
         while(bytesSent != dataSize) {
 
             int sendStatus = send(socket.refSocketFD(), data + bytesSent, dataSize - bytesSent, 0);
+
+            printf("Sent: %d | Total: %d/%d\n", sendStatus
+                    , sendStatus>0?sendStatus:0 + bytesSent, dataSize);
 
             if(sendStatus == INVALID) {
                 log.logCannot();
@@ -101,6 +104,10 @@ public:
 
             int recvStatus = recv(socket.refSocketFD(), data + bytesReceived, dataSize - bytesReceived, 0);
 
+            printf("Received: %d | Total: %d/%d\n", recvStatus
+                    , recvStatus>0?recvStatus:0 + bytesReceived, dataSize);
+
+
             if(recvStatus == INVALID) {
                 if(errno == EBADF)
                     log.logError("The socket argument is not a valid file descriptor.");
@@ -120,17 +127,28 @@ public:
             }
             bytesReceived += recvStatus;
         }
-        printf("Client: '%s'\n", data);
+        printf("SERVER SENT = {{\n%s\n}}\n", data);
         return true;
     }
 
 public:
     Client() {
-        while(!MakeConnection())
-            std::this_thread::sleep_for (std::chrono::seconds(1));
-        while(!SendData("Hello!"))
-            std::this_thread::sleep_for (std::chrono::seconds(1));
+
+        while(!MakeConnection());
+
+        while(true) {
+
+            std::thread newTransmission(&Client::TransmitData, this, "A");
+            newTransmission.join();
+
+            std::thread newReceiving(&Client::ReceiveData, this, CHAR_SIZE*sizeof(char));
+            newReceiving.join();
+
+
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
     }
+
 };
 
 int main() {

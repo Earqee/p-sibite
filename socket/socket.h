@@ -3,10 +3,12 @@
 
 #include "../util/header.h"
 #include "../util/log.h"
+#include "socketdata.h"
 
 class Socket {
 
-private:
+protected:
+
     SocketData socketData;
 
     void CreateSocket(int port) {
@@ -17,6 +19,8 @@ private:
         while(!CreateSocketAddress(port))
             std::this_thread::sleep_for (std::chrono::seconds(1));
     }
+
+private:
 
     bool CreateSocket() {
         Log log("Opening of socket");
@@ -47,38 +51,12 @@ private:
         return true;
     }
 
-    bool CreateSocketAddress(int port) {
+    virtual bool CreateSocketAddress(int port) {
         Log log("Creating of socket address.");
-
-        if(socketData.refSocketFD() != INVALID) {
-
-            socketData.configSocketAddress
-                (AF_INET6, in6addr_any, htons(port));
-
-            int bindStatus = bind(socketData.refSocketFD(),
-                    (sockaddr*) &socketData.refSocketAddress(), socketData.refSocketAddressLen());
-
-            if(bindStatus == INVALID) {
-                log.logCannot();
-                if(errno == EBADF)
-                    log.logError("The socket argument is not a valid file descriptor.");
-                if(errno == ENOTSOCK)
-                    log.logError("The descriptor socket is not a socket.");
-                if(errno == EADDRNOTAVAIL)
-                    log.logError("The specified address is not available on this machine.");
-                if(errno == EADDRINUSE)
-                    log.logError("Some other socket is already using the specified address.");
-                if(errno == EINVAL)
-                    log.logError("The socket socket already has an address.");
-                if(errno == EACCES)
-                    log.logError("You do not have permission to access the requested address.");
-                return false;
-            }
-        }
-        return true;
+        return false;
     }
 
-   bool CloseSocket(int action) {
+    bool CloseSocket(int action) {
         Log log("Closing of socket.");
 
         if(socketData.refSocketFD() == INVALID)
@@ -104,8 +82,9 @@ private:
     }
 
 public:
+
     /* Construction and destruction */
-    Socket(int port){ CreateSocket(port); }
+    Socket(){ }
     ~Socket() { CloseSocket(); }
     /* Related to socket-closing */
     bool CloseSocketReception() { return CloseSocket(SHUT_RD); }

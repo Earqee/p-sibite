@@ -1,15 +1,17 @@
 #include "../util/header.h"
 #include "../util/log.h"
 #include "../socket/socketdata.h"
-#include "../socket/socket.h"
+#include "../socket/serversocket.h"
 
 class Server {
 
 private:
 
     int connectionStatus = INVALID;
-    Socket socket = Socket(PORT);
+    ServerSocket socket = ServerSocket(PORT);
     std::vector<SocketData> clientsData;
+    std::vector<std::thread> clientsTransmissionThreads;
+    std::vector<std::thread> clientsReceivingThreads;
 
     bool ListenConnection() {
         Log log("Listening connections.");
@@ -29,38 +31,42 @@ private:
         return true;
     }
 
-    bool AcceptConnection() {
+    bool AcceptConnections() {
         Log log("Accepting connections.");
 
         if(connectionStatus == INVALID)
             return false;
 
-        SocketData clientData;
+        //while(true) {
 
-        while(clientData.refSocketFD() == INVALID) {
+            SocketData clientData;
 
-            clientData.refSocketFD() = accept(socket.refSocketFD(), (sockaddr*) &clientData.refSocketAddress(), &clientData.refSocketAddressLen());
+            while(clientData.refSocketFD() == INVALID) {
 
-            if(clientData.refSocketFD() == INVALID) {
-                log.logCannot();
-                if(errno == EBADF)
-                    log.logError("The socket argument is not a valid file descriptor.");
-                if(errno == ENOTSOCK)
-                    log.logError("The descriptor socket argument is not a socket.");
-                if(errno == EOPNOTSUPP)
-                    log.logError("The descriptor socket does not support this operation.");
-                if(errno == EWOULDBLOCK)
-                    log.logError("socket has nonblocking mode set, and there are no pending connections immediately available.");
-                return false;
+                clientData.refSocketFD() = accept(socket.refSocketFD(), (sockaddr*) &clientData.refSocketAddress(), &clientData.refSocketAddressLen());
+
+                if(clientData.refSocketFD() == INVALID) {
+                    log.logCannot();
+                    if(errno == EBADF)
+                        log.logError("The socket argument is not a valid file descriptor.");
+                    if(errno == ENOTSOCK)
+                        log.logError("The descriptor socket argument is not a socket.");
+                    if(errno == EOPNOTSUPP)
+                        log.logError("The descriptor socket does not support this operation.");
+                    if(errno == EWOULDBLOCK)
+                        log.logError("socket has nonblocking mode set, and there are no pending connections immediately available.");
+                    return false;
+                }
+
             }
-        }
 
-        clientsData.push_back(clientData);
-        printf("New connection at %d.\n", ntohs(clientData.refSocketAddress().sin6_port));
+            printf("New connection at %d.\n", ntohs(clientData.refSocketAddress().sin6_port));
+            clientsData.push_back(clientData);
+        //}
         return true;
     }
 
-    bool SendData(SocketData &clientData, const char *data) {
+    bool TransmitData(SocketData &clientData, const char *data) {
         Log log("Sending data.");
 
         if(clientData.refSocketFD() == INVALID)
@@ -72,6 +78,9 @@ private:
         while(bytesSent != dataSize) {
 
             int sendStatus = send(clientData.refSocketFD(), data + bytesSent, dataSize - bytesSent, 0);
+
+            printf("Sent: %d | Total: %d/%d\n", sendStatus
+                    , sendStatus>0?sendStatus:0 + bytesSent, dataSize);
 
             if(sendStatus == INVALID) {
                 log.logCannot();
@@ -99,6 +108,7 @@ private:
             }
             bytesSent += sendStatus;
         }
+
         return true;
     }
 
@@ -115,6 +125,9 @@ private:
         while(bytesReceived != dataSize) {
 
             int recvStatus = recv(clientData.refSocketFD(), data + bytesReceived, dataSize - bytesReceived, 0);
+
+            printf("Received: %d | Total: %d/%d\n", recvStatus
+                    , recvStatus>0?recvStatus:0 + bytesReceived, dataSize);
 
             if(recvStatus == INVALID) {
                 if(errno == EBADF)
@@ -135,29 +148,42 @@ private:
             }
             bytesReceived += recvStatus;
         }
-        data[dataSize-1] = '\0';
-        printf("Server: '%s'\n", data);
+        printf("CLIENT (%d) SENT = {{\n%s\n}}\n", ntohs(clientData.refSocketAddress().sin6_port), data);
         return true;
     }
 
 public:
-    Server() {}
+    Server() {
 
-    void run() {
         ListenConnection();
-        /* Function below should be put inside thread */
-        while(AcceptConnection());
-        /* Function below should be put inside thread */
+
+        std::thread acceptConnectionThread(&Server::AcceptConnections, this);
+        acceptConnectionThread.join();
+
         while(true) {
-            for(SocketData client: clientsData)
-                ReceiveData(client, CHAR_SIZE*sizeof("Hello."));
+
+            for(SocketData client : clientsData) {
+                //clientsTransmissionThreads.push_back(
+                    std::thread newTransmission(&Server::TransmitData, this, std::ref(client), "B");
+                    newTransmission.join();
+
+                //);
+                //clientsTransmissionThreads.back().join();
+
+                //clientsReceivingThreads.push_back(
+                    std::thread newReceiving(&Server::ReceiveData, this, std::ref(client), CHAR_SIZE*sizeof(char));
+                    newReceiving.join();
+                //);
+                //clientsReceivingThreads.back().join();
+            }
+
         }
     }
+
 };
 
 int main() {
     Server server;
-    server.run();
     return 0;
 }
 
