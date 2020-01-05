@@ -72,8 +72,8 @@ private:
         return socket.TransmitData(clientData, data);
     }
 
-    bool ReceiveData(SocketData &clientData, int dataSize) {
-        return socket.ReceiveData(clientData, dataSize);
+    bool ReceiveData(SocketData &clientData, std::string &data, int dataSize) {
+        return socket.ReceiveData(clientData, data, dataSize);
     }
 
 public:
@@ -87,18 +87,13 @@ public:
         while(true) {
 
             for(SocketData client : clientsData) {
-                //clientsTransmissionThreads.push_back(
-                    std::thread newTransmission(&Server::TransmitData, this, std::ref(client), "B");
-                    newTransmission.join();
+                std::thread newTransmission(&Server::TransmitData, this, std::ref(client), "B");
+                newTransmission.join();
 
-                //);
-                //clientsTransmissionThreads.back().join();
 
-                //clientsReceivingThreads.push_back(
-                    std::thread newReceiving(&Server::ReceiveData, this, std::ref(client), CHAR_SIZE*sizeof(char));
-                    newReceiving.join();
-                //);
-                //clientsReceivingThreads.back().join();
+                std::string dataReceived;
+                std::thread newReceiving(&Server::ReceiveData, this, std::ref(client), std::ref(dataReceived), CHAR_SIZE*sizeof(char));
+                newReceiving.join();
             }
 
         }

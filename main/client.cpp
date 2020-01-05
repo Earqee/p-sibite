@@ -9,7 +9,6 @@ private:
     int connectionStatus = INVALID;
     ClientSocket socket = ClientSocket(PORT);
 
-public:
     bool MakeConnection() {
         Log log("Making connection");
 
@@ -49,11 +48,12 @@ public:
         return socket.TransmitData(data);
     }
 
-    bool ReceiveData(int dataSize) {
-        return socket.ReceiveData(dataSize);
+    bool ReceiveData(std::string &data, int dataSize) {
+        return socket.ReceiveData(data, dataSize);
     }
 
 public:
+
     Client() {
 
         while(!MakeConnection());
@@ -63,12 +63,23 @@ public:
             std::thread newTransmission(&Client::TransmitData, this, "A");
             newTransmission.join();
 
-            std::thread newReceiving(&Client::ReceiveData, this, CHAR_SIZE*sizeof(char));
+            std::string dataReceived;
+            std::thread newReceiving(&Client::ReceiveData, this, std::ref(dataReceived), CHAR_SIZE*sizeof(char));
             newReceiving.join();
-
 
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
+    }
+
+    void formattedRequest(std::string &link,
+            std::string &host,
+            std::string &content) {
+
+        std::string getFormatted = "GET " + link + " HTTP/1.0\r\n";
+        std::string hostFormatted = "Host: " + host + "\r\n";
+        std::string contentTypeFormatted = "Content-type: application/x-www-form-urlencoded\r\n";
+        std::string contentLenFormatted = "Content-length: "+ std::to_string(content.size()) +"\r\n\r\n";
+        std::string contentFormatted = content + "\r\n";
     }
 
 };

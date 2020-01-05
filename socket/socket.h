@@ -165,23 +165,23 @@ public:
         return true;
     }
 
-    bool ReceiveData(int dataSize) {
-        return ReceiveData(this->socketData, dataSize);
+    bool ReceiveData(std::string &data, int dataSize) {
+        return ReceiveData(this->socketData, data, dataSize);
     }
 
-    bool ReceiveData(SocketData &socketData, int dataSize) {
+    bool ReceiveData(SocketData &socketData, std::string &data, int dataSize) {
         Log log("Receiving data.");
 
         if(socketData.refSocketFD() == INVALID)
             return false;
 
-        char *data = new char[dataSize];
+        char dummyData[dataSize];
 
         int bytesReceived = 0;
 
         while(bytesReceived != dataSize) {
 
-            int recvStatus = recv(socketData.refSocketFD(), data + bytesReceived, dataSize - bytesReceived, 0);
+            int recvStatus = recv(socketData.refSocketFD(), &dummyData + bytesReceived, dataSize - bytesReceived, 0);
 
             printf("Received: %d | Total: %d/%d\n", recvStatus
                     , recvStatus>0?recvStatus:0 + bytesReceived, dataSize);
@@ -206,7 +206,11 @@ public:
             }
             bytesReceived += recvStatus;
         }
-        printf("(%d) SENT = {{\n%s\n}}\n", ntohs(socketData.refSocketAddress().sin6_port), data);
+
+        printf("(%d) SENT = {{\n%s\n}}\n", ntohs(socketData.refSocketAddress().sin6_port), dummyData);
+
+        data = std::string(dummyData);
+
         return true;
     }
 
