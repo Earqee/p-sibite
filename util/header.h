@@ -9,6 +9,8 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <vector>
+#include <set>
+#include <map>
 #include <thread>
 #include <chrono>
 #include <thread>

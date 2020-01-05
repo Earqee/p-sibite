@@ -82,17 +82,133 @@ private:
     }
 
 public:
-
     /* Construction and destruction */
-    Socket(){ }
-    ~Socket() { CloseSocket(); }
+    Socket() { }
+
+    ~Socket() {
+        CloseSocket();
+    }
+
     /* Related to socket-closing */
-    bool CloseSocketReception() { return CloseSocket(SHUT_RD); }
-    bool CloseSocketTransmission() { return CloseSocket(SHUT_WR); }
-    bool CloseSocket() { return CloseSocket(SHUT_RDWR); }
+    bool CloseSocketReception() {
+        return CloseSocket(SHUT_RD);
+    }
+
+    bool CloseSocketTransmission() {
+        return CloseSocket(SHUT_WR);
+    }
+
+    bool CloseSocket() {
+        return CloseSocket(SHUT_RDWR);
+    }
+
     /* Socket information retrieval */
-    int& refSocketFD() { return socketData.refSocketFD(); }
-    sockaddr_in6& refSocketAddress() { return socketData.refSocketAddress(); }
-    socklen_t& refSocketAddressLen() { return socketData.refSocketAddressLen(); }
+    int& refSocketFD() {
+        return socketData.refSocketFD();
+    }
+
+    sockaddr_in6& refSocketAddress() {
+        return socketData.refSocketAddress();
+    }
+
+    socklen_t& refSocketAddressLen() {
+        return socketData.refSocketAddressLen();
+    }
+
+    bool TransmitData(const char *data) {
+        return TransmitData(this->socketData, data);
+    }
+
+    bool TransmitData(SocketData &socketData, const char *data) {
+        Log log("Sending data.");
+
+        if(socketData.refSocketFD() == INVALID)
+            return false;
+
+        int bytesSent = 0,
+            dataSize = sizeof(data);
+
+        while(bytesSent != dataSize) {
+
+            int sendStatus = send(socketData.refSocketFD(), data + bytesSent, dataSize - bytesSent, 0);
+
+            printf("Sent: %d | Total: %d/%d\n", sendStatus
+                    , sendStatus>0?sendStatus:0 + bytesSent, dataSize);
+
+            if(sendStatus == INVALID || !sendStatus) {
+                log.logCannot();
+                if(errno == EBADF)
+                    log.logError("The socket argument is not a valid file descriptor.");
+                if(errno == EINTR) {
+                    log.logError("The operation was interrupted by a signal before any data was sent. See Interrupted Primitives.");
+                    continue;
+                }
+                if(errno == ENOTSOCK)
+                    log.logError("The descriptor socket is not a socket.");
+                if(errno == EMSGSIZE)
+                    log.logError("The socket type requires that the message be sent atomically, but the message is too large for this to be possible.");
+                if(errno == EWOULDBLOCK) {
+                    log.logError("Nonblocking mode has been set on the socket, and the write operation would block. (Normally send blocks until the operation can be completed.");
+                    continue;
+                }
+                if(errno == ENOBUFS)
+                    log.logError("There is not enough internal buffer space available.");
+                if(errno == ENOTCONN)
+                    log.logError("You never connected this socket.");
+                if(errno == EPIPE)
+                    log.logError("This socket was connected but the connection is now broken.");
+                socketData.refSocketFD() = INVALID;
+                return false;
+            }
+            bytesSent += sendStatus;
+        }
+        return true;
+    }
+
+    bool ReceiveData(int dataSize) {
+        return ReceiveData(this->socketData, dataSize);
+    }
+
+    bool ReceiveData(SocketData &socketData, int dataSize) {
+        Log log("Receiving data.");
+
+        if(socketData.refSocketFD() == INVALID)
+            return false;
+
+        char *data = new char[dataSize];
+
+        int bytesReceived = 0;
+
+        while(bytesReceived != dataSize) {
+
+            int recvStatus = recv(socketData.refSocketFD(), data + bytesReceived, dataSize - bytesReceived, 0);
+
+            printf("Received: %d | Total: %d/%d\n", recvStatus
+                    , recvStatus>0?recvStatus:0 + bytesReceived, dataSize);
+
+            if(recvStatus == INVALID || !recvStatus) {
+                if(errno == EBADF)
+                    log.logError("The socket argument is not a valid file descriptor.");
+                if(errno == EINTR) {
+                    log.logError("The operation was interrupted by a signal before any data was sent. See Interrupted Primitives.");
+                    continue;
+                }
+                if(errno == ENOTSOCK)
+                    log.logError("The descriptor socket is not a socket.");
+                if(errno == EWOULDBLOCK) {
+                    log.logError("Nonblocking mode has been set on the socket, and the write operation would block.");
+                    continue;
+                }
+                if(errno == ENOTCONN)
+                    log.logError("You never connected this socket.");
+                socketData.refSocketFD() = INVALID;
+                return false;
+            }
+            bytesReceived += recvStatus;
+        }
+        printf("(%d) SENT = {{\n%s\n}}\n", ntohs(socketData.refSocketAddress().sin6_port), data);
+        return true;
+    }
+
 };
 #endif

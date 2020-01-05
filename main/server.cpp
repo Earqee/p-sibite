@@ -3,15 +3,17 @@
 #include "../socket/socketdata.h"
 #include "../socket/serversocket.h"
 
+#include <deque>
+
 class Server {
 
 private:
 
     int connectionStatus = INVALID;
     ServerSocket socket = ServerSocket(PORT);
-    std::vector<SocketData> clientsData;
-    std::vector<std::thread> clientsTransmissionThreads;
-    std::vector<std::thread> clientsReceivingThreads;
+    std::deque<SocketData> clientsData;
+    //std::set<std::thread> clientsTransmissionThreads;
+    //std::set<std::thread> clientsReceivingThreads;
 
     bool ListenConnection() {
         Log log("Listening connections.");
@@ -37,7 +39,7 @@ private:
         if(connectionStatus == INVALID)
             return false;
 
-        //while(true) {
+        while(true) {
 
             SocketData clientData;
 
@@ -61,95 +63,17 @@ private:
             }
 
             printf("New connection at %d.\n", ntohs(clientData.refSocketAddress().sin6_port));
-            clientsData.push_back(clientData);
-        //}
+            clientsData.push_back(SocketData(clientData));
+        }
         return true;
     }
 
     bool TransmitData(SocketData &clientData, const char *data) {
-        Log log("Sending data.");
-
-        if(clientData.refSocketFD() == INVALID)
-            return false;
-
-        int bytesSent = 0,
-            dataSize = sizeof(data);
-
-        while(bytesSent != dataSize) {
-
-            int sendStatus = send(clientData.refSocketFD(), data + bytesSent, dataSize - bytesSent, 0);
-
-            printf("Sent: %d | Total: %d/%d\n", sendStatus
-                    , sendStatus>0?sendStatus:0 + bytesSent, dataSize);
-
-            if(sendStatus == INVALID) {
-                log.logCannot();
-                if(errno == EBADF)
-                    log.logError("The socket argument is not a valid file descriptor.");
-                if(errno == EINTR) {
-                    log.logError("The operation was interrupted by a signal before any data was sent. See Interrupted Primitives.");
-                    continue;
-                }
-                if(errno == ENOTSOCK)
-                    log.logError("The descriptor socket is not a socket.");
-                if(errno == EMSGSIZE)
-                    log.logError("The socket type requires that the message be sent atomically, but the message is too large for this to be possible.");
-                if(errno == EWOULDBLOCK) {
-                    log.logError("Nonblocking mode has been set on the socket, and the write operation would block. (Normally send blocks until the operation can be completed.");
-                    continue;
-                }
-                if(errno == ENOBUFS)
-                    log.logError("There is not enough internal buffer space available.");
-                if(errno == ENOTCONN)
-                    log.logError("You never connected this socket.");
-                if(errno == EPIPE)
-                    log.logError("This socket was connected but the connection is now broken.");
-                return false;
-            }
-            bytesSent += sendStatus;
-        }
-
-        return true;
+        return socket.TransmitData(clientData, data);
     }
 
     bool ReceiveData(SocketData &clientData, int dataSize) {
-        Log log("Receiving data.");
-
-        if(clientData.refSocketFD() == INVALID)
-            return false;
-
-        char *data = new char[dataSize];
-
-        int bytesReceived = 0;
-
-        while(bytesReceived != dataSize) {
-
-            int recvStatus = recv(clientData.refSocketFD(), data + bytesReceived, dataSize - bytesReceived, 0);
-
-            printf("Received: %d | Total: %d/%d\n", recvStatus
-                    , recvStatus>0?recvStatus:0 + bytesReceived, dataSize);
-
-            if(recvStatus == INVALID) {
-                if(errno == EBADF)
-                    log.logError("The socket argument is not a valid file descriptor.");
-                if(errno == EINTR) {
-                    log.logError("The operation was interrupted by a signal before any data was sent. See Interrupted Primitives.");
-                    continue;
-                }
-                if(errno == ENOTSOCK)
-                    log.logError("The descriptor socket is not a socket.");
-                if(errno == EWOULDBLOCK) {
-                    log.logError("Nonblocking mode has been set on the socket, and the write operation would block.");
-                    continue;
-                }
-                if(errno == ENOTCONN)
-                    log.logError("You never connected this socket.");
-                return false;
-            }
-            bytesReceived += recvStatus;
-        }
-        printf("CLIENT (%d) SENT = {{\n%s\n}}\n", ntohs(clientData.refSocketAddress().sin6_port), data);
-        return true;
+        return socket.ReceiveData(clientData, dataSize);
     }
 
 public:
@@ -158,7 +82,7 @@ public:
         ListenConnection();
 
         std::thread acceptConnectionThread(&Server::AcceptConnections, this);
-        acceptConnectionThread.join();
+        acceptConnectionThread.detach();
 
         while(true) {
 

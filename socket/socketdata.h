@@ -15,6 +15,12 @@ public:
         socketAddressLen = sizeof(socketAddress);
     }
 
+    SocketData(const SocketData &socketData) {
+        socketFD = socketData.socketFD;
+        socketAddress = socketData.socketAddress;
+        socketAddressLen = socketData.socketAddressLen;
+    }
+
     int& refSocketFD() {
         return socketFD;
     }
