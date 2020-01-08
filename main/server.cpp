@@ -87,14 +87,26 @@ public:
         while(true) {
 
             for(SocketData client : clientsData) {
-                std::thread newTransmission(&Server::TransmitData, this, std::ref(client), "B");
-                newTransmission.join();
+
+                //std::thread newTransmission(&Server::TransmitData, this, std::ref(client), "B");
+                //newTransmission.join();
+
+                /* Get size of data */
+                std::string dataSizeReceived;
+                //ReceiveData(client, dataSizeReceived,  CHAR_SIZE*dataSizeStdAmountOfDigits);
+                std::thread newReceivingOfDataSize(&Server::ReceiveData, this, std::ref(client), std::ref(dataSizeReceived), CHAR_SIZE*dataSizeStdAmountOfDigits);
+                newReceivingOfDataSize.join();
 
 
+                /* Get  data */
+                //printf("%d\n", CHAR_SIZE*std::atoi(dataSizeReceived.c_str()));
                 std::string dataReceived;
-                std::thread newReceiving(&Server::ReceiveData, this, std::ref(client), std::ref(dataReceived), CHAR_SIZE*sizeof(char));
-                newReceiving.join();
+                std::thread newReceivingOfData(&Server::ReceiveData, this, std::ref(client), std::ref(dataReceived), CHAR_SIZE*std::atoi(dataSizeReceived.c_str()));
+                newReceivingOfData.join();
+                //ReceiveData(client, dataReceived, CHAR_SIZE*std::atoi(dataSizeReceived.c_str()));
             }
+
+            std::this_thread::sleep_for(std::chrono::seconds(1));
 
         }
     }

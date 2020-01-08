@@ -60,28 +60,47 @@ public:
 
         while(true) {
 
-            std::thread newTransmission(&Client::TransmitData, this, "A");
-            newTransmission.join();
+            /* Format data */
+            std::string data = formattedRequest("", "", "");
 
-            std::string dataReceived;
-            std::thread newReceiving(&Client::ReceiveData, this, std::ref(dataReceived), CHAR_SIZE*sizeof(char));
-            newReceiving.join();
+            /* Get data size string and parse to standard size */
+            std::string dataSize = std::to_string(data.size());
+
+            /* */
+            while(data.size() < dataSizeStdAmountOfDigits)
+                dataSize.insert(dataSize.begin(), '0');
+
+            /* Send size of data */
+            std::thread newTransmissionOfDataSize(&Client::TransmitData, this, dataSize.c_str());
+            newTransmissionOfDataSize.join();
+
+            //std::cout << data << std::endl;
+            /* Send data */
+            std::thread newTransmissionOfData(&Client::TransmitData, this, data.c_str());
+            newTransmissionOfDataSize.join();
+
+            //std::string dataReceived;
+            //std::thread newReceiving(&Client::ReceiveData, this, std::ref(dataReceived), CHAR_SIZE*sizeof(char));
+            //newReceiving.join();
 
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
     }
 
-    void formattedRequest(std::string &link,
-            std::string &host,
-            std::string &content) {
+    std::string formattedRequest(std::string link,
+            std::string host,
+            std::string content) {
 
-        std::string getFormatted = "GET " + link + " HTTP/1.0\r\n";
-        std::string hostFormatted = "Host: " + host + "\r\n";
-        std::string contentTypeFormatted = "Content-type: application/x-www-form-urlencoded\r\n";
-        std::string contentLenFormatted = "Content-length: "+ std::to_string(content.size()) +"\r\n\r\n";
-        std::string contentFormatted = content + "\r\n";
+        std::string request;
+
+        if(1) request.append("GET " + link + " HTTP/1.0\r\n");
+        if(1) request.append("Host: " + host + "\r\n");
+        if(1) request.append("Content-type: application/x-www-form-urlencoded\r\n");
+        if(1) request.append("Content-length: "+ std::to_string(content.size()) +"\r\n\r\n");
+        if(1) request.append(content + "\r\n");
+
+        return request;
     }
-
 };
 
 int main() {

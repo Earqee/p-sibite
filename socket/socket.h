@@ -133,9 +133,9 @@ public:
             int sendStatus = send(socketData.refSocketFD(), data + bytesSent, dataSize - bytesSent, 0);
 
             printf("Sent: %d | Total: %d/%d\n", sendStatus
-                    , sendStatus>0?sendStatus:0 + bytesSent, dataSize);
+                    , (sendStatus>0?sendStatus:0) + bytesSent, dataSize);
 
-            if(sendStatus == INVALID || !sendStatus) {
+            if(sendStatus == INVALID) {
                 log.logCannot();
                 if(errno == EBADF)
                     log.logError("The socket argument is not a valid file descriptor.");
@@ -184,9 +184,9 @@ public:
             int recvStatus = recv(socketData.refSocketFD(), &dummyData + bytesReceived, dataSize - bytesReceived, 0);
 
             printf("Received: %d | Total: %d/%d\n", recvStatus
-                    , recvStatus>0?recvStatus:0 + bytesReceived, dataSize);
+                    , (recvStatus>0?recvStatus:0) + bytesReceived, dataSize);
 
-            if(recvStatus == INVALID || !recvStatus) {
+            if(recvStatus == INVALID) {
                 if(errno == EBADF)
                     log.logError("The socket argument is not a valid file descriptor.");
                 if(errno == EINTR) {
@@ -206,11 +206,8 @@ public:
             }
             bytesReceived += recvStatus;
         }
-
         printf("(%d) SENT = {{\n%s\n}}\n", ntohs(socketData.refSocketAddress().sin6_port), dummyData);
-
-        data = std::string(dummyData);
-
+        data = dummyData;
         return true;
     }
 

@@ -14,6 +14,8 @@
 #include <thread>
 #include <chrono>
 #include <thread>
+#include <iostream>
+#include <ostream>
 
 /*Common namespaces */
 #define INVALID -1
@@ -22,6 +24,7 @@
 /* Server related */
 #define PORT 7002
 #define maxNumOfConnections 64
+#define dataSizeStdAmountOfDigits 5
 
 #endif
 
