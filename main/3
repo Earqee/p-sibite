@@ -44,7 +44,7 @@ private:
         return true;
     }
 
-    bool TransmitData(std::string &data) {
+    bool TransmitData(const char *data) {
         return socket.TransmitData(data);
     }
 
@@ -64,25 +64,22 @@ public:
             std::string data = formattedRequest("", "", "");
 
             /* Get data size string and parse to standard size */
-            std::string dataSize = std::to_string(data.size());
+            std::string dataSize = std::to_string(CHAR_SIZE*data.size());
 
             /* */
             while(dataSize.size() < dataSizeStdAmountOfDigits)
                 dataSize.insert(dataSize.begin(), '0');
 
-            //std::cout <<"Debug::"<< dataSize << std::endl;
+            std::cout <<"Debug::"<< dataSize << std::endl;
 
             /* Send size of data */
-            std::thread newTransmissionOfDataSize(
-                    &Client::TransmitData, this,
-                    std::ref(dataSize));
+            std::thread newTransmissionOfDataSize(&Client::TransmitData, this, dataSize.c_str());
             newTransmissionOfDataSize.join();
 
-            //std::cout << data.size() << std::endl;
+            std::cout << data.size() << std::endl;
             /* Send data */
-            std::thread newTransmissionOfData(&Client::TransmitData, this,
-                    std::ref(data));
-            newTransmissionOfData.join();
+            //std::thread newTransmissionOfData(&Client::TransmitData, this, data.c_str());
+            //newTransmissionOfDataSize.join();
 
             //std::string dataReceived;
             //std::thread newReceiving(&Client::ReceiveData, this, std::ref(dataReceived), CHAR_SIZE*sizeof(char));
@@ -102,7 +99,6 @@ public:
         if(1) request.append("Host: " + host + "\r\n");
         if(1) request.append("Content-type: application/x-www-form-urlencoded\r\n");
         if(1) request.append("Content-length: "+ std::to_string(content.size()) +"\r\n\r\n");
-
         if(1) request.append(content + "\r\n");
 
         return request;

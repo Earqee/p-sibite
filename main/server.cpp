@@ -68,7 +68,7 @@ private:
         return true;
     }
 
-    bool TransmitData(SocketData &clientData, const char *data) {
+    bool TransmitData(SocketData &clientData, std::string &data) {
         return socket.TransmitData(clientData, data);
     }
 
@@ -94,19 +94,20 @@ public:
                 /* Get size of data */
                 std::string dataSizeReceived;
                 //ReceiveData(client, dataSizeReceived,  CHAR_SIZE*dataSizeStdAmountOfDigits);
-                std::thread newReceivingOfDataSize(&Server::ReceiveData, this, std::ref(client), std::ref(dataSizeReceived), CHAR_SIZE*dataSizeStdAmountOfDigits);
+                std::thread newReceivingOfDataSize(&Server::ReceiveData, this, std::ref(client), std::ref(dataSizeReceived), dataSizeStdAmountOfDigits);
                 newReceivingOfDataSize.join();
 
-
                 /* Get  data */
-                //printf("%d\n", CHAR_SIZE*std::atoi(dataSizeReceived.c_str()));
+                //printf("%d\n", std::atoi(dataSizeReceived.c_str()));
                 std::string dataReceived;
-                std::thread newReceivingOfData(&Server::ReceiveData, this, std::ref(client), std::ref(dataReceived), CHAR_SIZE*std::atoi(dataSizeReceived.c_str()));
+                std::thread newReceivingOfData(&Server::ReceiveData, this,
+                        std::ref(client),
+                        std::ref(dataReceived), std::atoi(dataSizeReceived.c_str()));
                 newReceivingOfData.join();
                 //ReceiveData(client, dataReceived, CHAR_SIZE*std::atoi(dataSizeReceived.c_str()));
             }
 
-            std::this_thread::sleep_for(std::chrono::seconds(1));
+            //std::this_thread::sleep_for(std::chrono::seconds(1));
 
         }
     }
