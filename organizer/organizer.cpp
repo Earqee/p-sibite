@@ -1,5 +1,8 @@
 #include <bits/stdc++.h>
-
+#include "../util/header.h"
+#include "../util/log.h"
+#include "../main/client.h"
+#include "../main/server.h"
 class Task
 {
 public:
@@ -51,14 +54,38 @@ class OrganizerData
 {
 public:
 	Week week;
-	OrganizerData()
-	{
-		week = Week();
-	}
+	OrganizerData(){}
 	void initialMenu()
 	{
 		printf("Welcome\n");
 		printf("What you want to do?\nAdd a Task [1]		Remove a Task [2]		Edit a Task [3]		View a day [4]		View a week [5]\n");
+	}
+	
+};
+class ApplicationClient
+{
+public:
+	ClientSocket clientSocket = ClientSocket(port);
+	User user;
+	ApplicationClient(){}
+	
+	
+};
+class ApplicationServer
+{
+public:
+	ServerSocket serverSocket = ServerSocket(port);
+	std::map<std::string, User> map;
+	ApplicationServer();
+};
+class User
+{
+public:
+	OrganizerData organizerData;
+	std::string login, password;
+	User(std::string log, std::string pass){
+		login = log;
+		password = pass;
 	}
 	
 };
