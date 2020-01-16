@@ -12,9 +12,12 @@ private:
     bool CreateSocketAddress(int port) override {
         Log log("Creating of socket address.");
 
-        if(socketData.refSocketFD() == INVALID)
+        if(socketData.refSocketFD() == INVALID) {
+            printf("Invalid socketFd.\n");
             return false;
+        }
 
+        /* Created socket connects to 'any incoming address' */
         socketData.configSocketAddress
             (AF_INET6, in6addr_any, htons(port));
 
@@ -42,8 +45,9 @@ private:
 
 public:
 
-    ServerSocket(int port) {
-        CreateSocket(port);
+    ServerSocket(int port) : Socket(port) {
+        CreateSocket();
+        CreateSocketAddress(port);
     }
 
 };

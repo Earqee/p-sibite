@@ -3,7 +3,7 @@
 
 #include "../util/header.h"
 #include "../util/log.h"
-#include "socketdata.h"
+#include "../socket/socketdata.h"
 
 class Socket {
 
@@ -11,22 +11,11 @@ protected:
 
     SocketData socketData;
 
-    void CreateSocket(int port) {
-        Log log("Creation of socket '"+std::to_string(port)+"'");
-
-        while(!CreateSocket())
-            std::this_thread::sleep_for (std::chrono::seconds(1));
-        while(!CreateSocketAddress(port))
-            std::this_thread::sleep_for (std::chrono::seconds(1));
-    }
-
-private:
-
     bool CreateSocket() {
         Log log("Opening of socket");
 
         /* socketData.socketFD = socket(AF_INET6, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0); */
-        socketData.refSocketFD() = socket(PF_INET6, SOCK_STREAM, IPPROTO_TCP);
+        socketData.refSocketFD() = socket(defaultFamily, defaultSocketType, defaultProtocol);
 
         if(socketData.refSocketFD() == INVALID) {
             log.logCannot();
@@ -51,10 +40,9 @@ private:
         return true;
     }
 
-    virtual bool CreateSocketAddress(int port) {
-        Log log("Creating of socket address.");
-        return false;
-    }
+    virtual bool CreateSocketAddress(int port) = 0;
+
+private:
 
     bool CloseSocket(int action) {
         Log log("Closing of socket.");
@@ -83,7 +71,9 @@ private:
 
 public:
     /* Construction and destruction */
-    Socket() { }
+    Socket(int port) {
+        Log log("Creation of socket '"+std::to_string(port)+"'");
+    }
 
     ~Socket() {
         CloseSocket();
@@ -140,7 +130,10 @@ public:
             printf("Sent: %d | Total: %d/%d\n", sendStatus
                     , (sendStatus>0?sendStatus:0) + bytesSent, dataSize);
 
-            if(sendStatus == INVALID || !sendStatus) {
+            if(!sendStatus)
+                break;
+
+            if(sendStatus == INVALID) {
                 log.logCannot();
                 if(errno == EBADF)
                     log.logError("The socket argument is not a valid file descriptor.");
@@ -193,7 +186,10 @@ public:
             printf("Received: %d | Total: %d/%d\n", recvStatus
                     , (recvStatus>0?recvStatus:0) + bytesReceived, dataSize);
 
-            if(recvStatus == INVALID || !recvStatus) {
+            if(!recvStatus)
+                break;
+
+            if(recvStatus == INVALID) {
                 if(errno == EBADF)
                     log.logError("The socket argument is not a valid file descriptor.");
                 if(errno == EINTR) {

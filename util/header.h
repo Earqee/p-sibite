@@ -25,6 +25,11 @@
 #define PORT 7002
 #define maxNumOfConnections 64
 #define dataSizeStdAmountOfDigits 5
+#define defaultMaximumDataSize 256
+
+const int defaultFamily = AF_INET6;
+const int defaultSocketType = SOCK_STREAM;
+const int defaultProtocol = getprotobyname("tcp")->p_proto;
 
 #endif
 

@@ -12,10 +12,13 @@ private:
     bool CreateSocketAddress(int port) override {
         Log log("Creating of socket address.");
 
-        if(socketData.refSocketFD() == INVALID)
+        if(socketData.refSocketFD() == INVALID) {
+            printf("Invalid socketFD.\n");
             return false;
+        }
 
         in6_addr ipv6ServerAddress;
+        /* always connects to ICVPN server */
         int conversionStatus = inet_pton(AF_INET6, "::1", &ipv6ServerAddress);
 
         if(conversionStatus == INVALID) {
@@ -32,8 +35,9 @@ private:
 
 public:
 
-    ClientSocket(int port) {
-        CreateSocket(port);
+    ClientSocket(int port) : Socket(port) {
+        CreateSocket();
+        CreateSocketAddress(port);
     }
 
 };

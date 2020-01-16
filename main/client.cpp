@@ -2,6 +2,7 @@
 #include "../util/log.h"
 #include "../socket/socketdata.h"
 #include "../socket/clientsocket.h"
+#include "../socket/dummysocket.h"
 
 class Client {
 
@@ -45,11 +46,24 @@ private:
     }
 
     bool TransmitData(std::string &data) {
-        return socket.TransmitData(data);
+            return socket.TransmitData(data);
     }
 
-    bool ReceiveData(std::string &data, int dataSize) {
-        return socket.ReceiveData(data, dataSize);
+    void ThreadTransmitData(std::string &data) {
+        std::thread newTransmissionOfData(&Client::TransmitData, this,
+                    std::ref(data));
+        newTransmissionOfData.join();
+    }
+
+    bool ReceiveData(std::string &data) {
+        return socket.ReceiveData(data, defaultMaximumDataSize);
+    }
+
+    std::string ThreadReceiveData() {
+        std::string dataReceived;
+        std::thread newReceiving(&Client::ReceiveData, this, std::ref(dataReceived));
+        newReceiving.join();
+        return dataReceived;
     }
 
 public:
@@ -58,38 +72,6 @@ public:
 
         while(!MakeConnection());
 
-        while(true) {
-
-            /* Format data */
-            std::string data = formattedRequest("", "", "");
-
-            /* Get data size string and parse to standard size */
-            std::string dataSize = std::to_string(data.size());
-
-            /* */
-            while(dataSize.size() < dataSizeStdAmountOfDigits)
-                dataSize.insert(dataSize.begin(), '0');
-
-            //std::cout <<"Debug::"<< dataSize << std::endl;
-
-            /* Send size of data */
-            std::thread newTransmissionOfDataSize(
-                    &Client::TransmitData, this,
-                    std::ref(dataSize));
-            newTransmissionOfDataSize.join();
-
-            //std::cout << data.size() << std::endl;
-            /* Send data */
-            std::thread newTransmissionOfData(&Client::TransmitData, this,
-                    std::ref(data));
-            newTransmissionOfData.join();
-
-            //std::string dataReceived;
-            //std::thread newReceiving(&Client::ReceiveData, this, std::ref(dataReceived), CHAR_SIZE*sizeof(char));
-            //newReceiving.join();
-
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-        }
     }
 
     std::string formattedRequest(std::string link,

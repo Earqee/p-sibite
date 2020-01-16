@@ -14,6 +14,8 @@ private:
     int connectionStatus = INVALID;
     ServerSocket serverSocket = ServerSocket(PORT);
     std::deque<SocketData> clientsData;
+    //std::set<std::thread> clientsTransmissionThreads;
+    //std::set<std::thread> clientsReceivingThreads;
 
     bool ListenConnection() {
         Log log("Listening connections.");
@@ -72,22 +74,8 @@ private:
         return serverSocket.TransmitData(clientData, data);
     }
 
-    void ThreadTransmitData(SocketData &clientData, std::string &data) {
-        std::thread newTransmission(&Server::TransmitData, this, std::ref(clientData), std::ref(data));
-        newTransmission.join();
-    }
-
-    bool ReceiveData(SocketData &clientData, std::string &data) {
-        return serverSocket.ReceiveData(clientData, data, defaultMaximumDataSize);
-    }
-
-    std::string ThreadReceiveData(SocketData &clientData) {
-        std::string dataReceived;
-        std::thread newReceivingOfData(&Server::ReceiveData, this,
-            std::ref(clientData),
-            std::ref(dataReceived));
-        newReceivingOfData.join();
-        return dataReceived;
+    bool ReceiveData(SocketData &clientData, std::string &data, int dataSize) {
+        return serverSocket.ReceiveData(clientData, data, dataSize);
     }
 
     bool TransmitHTTPtoWeb(std::string host, std::string port) {
@@ -163,15 +151,18 @@ private:
             }
         }
 
+            */
 
         DummySocket hostSocket(80);
+        hostent *server = gethostbyname(host.c_str());
 
         std::string data = "GET / HTTP/1.1 \r\nHost: "+ host +" \r\nConnection: close \r\n";
         hostSocket.TransmitData(data);
         std::string dataReceived;
         hostSocket.ReceiveData(dataReceived, 1024);
-        */
+
         return true;
+
     }
 
 public:
@@ -182,10 +173,37 @@ public:
         std::thread acceptConnectionThread(&Server::AcceptConnections, this);
         acceptConnectionThread.detach();
 
+        TransmitHTTPtoWeb("www.google.com", "80");
+
         while(true) {
-            for(SocketData client : clientsData)
-                ThreadReceiveData(client);
-            std::this_thread::sleep_for(std::chrono::seconds(10));
+
+            for(SocketData client : clientsData) {
+
+                printf("Connected with someone\n");
+
+                //std::thread newTransmission(&Server::TransmitData, this, std::ref(client), "B");
+                //newTransmission.join();
+
+                /* Get size of data */
+                std::string dataSizeReceived;
+                //ReceiveData(client, dataSizeReceived,  CHAR_SIZE*dataSizeStdAmountOfDigits);
+                std::thread newReceivingOfDataSize(&Server::ReceiveData, this, std::ref(client), std::ref(dataSizeReceived), dataSizeStdAmountOfDigits);
+                newReceivingOfDataSize.join();
+
+                /* Get  data */
+                //printf("%d\n", std::atoi(dataSizeReceived.c_str()));
+                std::string dataReceived;
+                std::thread newReceivingOfData(&Server::ReceiveData, this,
+                        std::ref(client),
+                        std::ref(dataReceived), std::atoi(dataSizeReceived.c_str()));
+                newReceivingOfData.join();
+                //ReceiveData(client, dataReceived, CHAR_SIZE*std::atoi(dataSizeReceived.c_str()));
+
+
+            }
+
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+
         }
     }
 
