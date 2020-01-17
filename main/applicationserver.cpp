@@ -7,11 +7,12 @@
 #include "../main/server.h"
 
 class ApplicationServer : public Server {
+private:
 
     std::map<std::string, std::string> database;
 
-    bool AuthenticateUser(User &user) {
-        std::string dataReceived = ThreadReceiveData(user.refSocketData());
+    bool AuthenticateUser(ServerUser &serverUser) {
+        std::string dataReceived = ThreadReceiveData(serverUser.refSocketData());
         std::string word;
         std::stringstream stream(dataReceived);
         stream >> word;
@@ -19,45 +20,62 @@ class ApplicationServer : public Server {
             std::string login, password;
             stream >> login >> password;
             if(database[login] == password) {
-                tracker.insertAtAtOrganizer(user.refSocketData());
-                tracker.removeFromNonAuthenticated(user);
+                tracker.insertAtAtOrganizer(serverUser.refSocketData());
+                tracker.removeFromNonAuthenticated(serverUser);
+                std::cout <<"Inseriu";
                 return true;
             }
         }
         return false;
     }
 
-    void ProcessOrganizerRequest(User &user) {
-        std::string dataReceived = ThreadReceiveData(user.refSocketData());
-        std::string queryStatus = user.ProcessOrganizerRequest(dataReceived);
+    void ProcessOrganizerRequest(ServerUser &serverUser) {
+        std::string dataReceived = ThreadReceiveData(serverUser.refSocketData());
+        std::string queryStatus = serverUser.ProcessOrganizerRequest(dataReceived);
 
     }
 
-private:
+public:
+
 
     ApplicationServer() : Server() {
+
+        database["abc"] = "def";
+
+        std::thread acceptConnections(&Server::AcceptConnections,this);
+        acceptConnections.join();
+
+        std::thread handleAuthentication(&ApplicationServer::ThreadHandleAutentication, this);
+        handleAuthentication.join();
     }
 
      void ThreadHandleAutentication() {
-
-         while(true) {
-             for(User user : tracker.refNonAuthenticated()) {
+         //while(true) {
+             for(ServerUser serverUser : tracker.refNonAuthenticated()) {
                  std::thread authenticateUser(&ApplicationServer::AuthenticateUser, this,
-                         std::ref(user));
-                 authenticateUser.detach(); /* Obs */
+                         std::ref(serverUser));
+                 authenticateUser.join(); /* Obs */
+                 std::cout << tracker.refNonAuthenticated().size() << std::endl;
              }
-        }
+
+
+        //}
     }
 
 
+     /*
     void ThreadHandleOrganizer() {
 
         while(true) {
+
             //for(User user : usersAtOrganizer) {
         }
     }
+
+    */
 };
 
 int main() {
 
+    ApplicationServer applicationServer;
 }

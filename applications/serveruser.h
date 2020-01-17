@@ -1,10 +1,10 @@
-#ifndef ICVPN_USER_H
-#define ICVPN_USER_H
+#ifndef ICVPN_SERVER_USER_H
+#define ICVPN_SERVER_USER_H
 
 #include "../socket/socketdata.h"
 #include "../applications/organizer/serverorganizer.h"
 
-class User
+class ServerUser
 {
 private:
     int ID;
@@ -12,7 +12,7 @@ private:
     ServerOrganizer serverOrganizer;
 public:
 
-    User(int ID, SocketData &socketData) {
+    ServerUser(int ID, SocketData &socketData) {
         this->ID = ID;
         this->socketData = socketData;
     }
@@ -37,8 +37,8 @@ public:
         return serverOrganizer.ProcessRequest(request);
     }
 
-    bool operator<(const User &user) const {
-        return this->ID < user.ID;
+    bool operator<(const ServerUser &serverUser) const {
+        return this->ID < serverUser.ID;
     }
 };
 

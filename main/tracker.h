@@ -1,34 +1,38 @@
+#ifndef ICVPN_TRACKER_H
+#define ICVPN_TRACKER_H
+
 #include "../util/header.h"
+#include "../applications/serveruser.h"
 
 class Tracker {
 
 private:
     int nextNonAuthenticatedID = 0, nextAtOrganizedID = 0;
-    std::set<User> nonAuthenticated;
-    std::set<User> atOrganizer;
+    std::set<ServerUser> nonAuthenticated;
+    std::set<ServerUser> atOrganizer;
 public:
 
     void insertAtNonAuthenticated(SocketData &socketData) {
-        nonAuthenticated.insert(User(nextNonAuthenticatedID++, socketData));
+        nonAuthenticated.insert(ServerUser(nextNonAuthenticatedID++, socketData));
     }
 
-    void removeFromNonAuthenticated(User &user) {
-        nonAuthenticated.erase(user);
+    void removeFromNonAuthenticated(ServerUser &serverUser) {
+        nonAuthenticated.erase(serverUser);
     }
 
     void insertAtAtOrganizer(SocketData &socketData) {
-        atOrganizer.insert(User(nextNonAuthenticatedID++, socketData));
+        atOrganizer.insert(ServerUser(nextNonAuthenticatedID++, socketData));
     }
 
-    void removeFromAtAtOrganizer(User &user) {
-        atOrganizer.erase(user);
+    void removeFromAtAtOrganizer(ServerUser &serverUser) {
+        atOrganizer.erase(serverUser);
     }
 
-    std::set<User>& refNonAuthenticated() {
+    std::set<ServerUser>& refNonAuthenticated() {
         return nonAuthenticated;
     }
 
-    std::set<User>& refAtOrganizer() {
+    std::set<ServerUser>& refAtOrganizer() {
         return atOrganizer;
     }
 
@@ -42,3 +46,5 @@ public:
 
 
 };
+
+#endif

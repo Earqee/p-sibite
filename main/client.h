@@ -1,3 +1,6 @@
+#ifndef ICVPN_CLIENT_H
+#define ICVPN_CLIENT_H
+
 #include "../util/header.h"
 #include "../util/log.h"
 #include "../socket/socketdata.h"
@@ -56,9 +59,7 @@ private:
 public:
 
     Client() {
-
-        while(!MakeConnection());
-
+        MakeConnection();
     }
 
     std::string formattedRequest(std::string link,
@@ -71,11 +72,10 @@ public:
         if(1) request.append("Host: " + host + "\r\n");
         if(1) request.append("Content-type: application/x-www-form-urlencoded\r\n");
         if(1) request.append("Content-length: "+ std::to_string(content.size()) +"\r\n\r\n");
-
         if(1) request.append(content + "\r\n");
-
         return request;
     }
+
     void ThreadTransmitData(std::string &data) {
         std::thread newTransmissionOfData(&Client::TransmitData, this,
                     std::ref(data));
@@ -89,3 +89,4 @@ public:
     }
 };
 
+#endif

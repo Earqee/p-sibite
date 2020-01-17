@@ -7,7 +7,7 @@
 #include "../socket/serversocket.h"
 #include "../socket/socketinfo.h"
 #include "../socket/dummysocket.h"
-#include "../applications/user.h"
+#include "../applications/serveruser.h"
 #include "../main/tracker.h"
 
 class Server {
@@ -17,6 +17,8 @@ protected:
     int connectionStatus = INVALID;
     ServerSocket serverSocket = ServerSocket(PORT);
     Tracker tracker;
+
+public:
 
     bool ListenConnection() {
         Log log("Listening connections.");
@@ -42,7 +44,7 @@ protected:
         if(connectionStatus == INVALID)
             return false;
 
-        while(true) {
+        //while(true) {
 
             SocketData clientData;
 
@@ -66,7 +68,7 @@ protected:
 
             printf("New connection at %d.\n", ntohs(clientData.refSocketAddress().sin6_port));
             tracker.insertAtNonAuthenticated(clientData);
-        }
+        //}
         return true;
     }
 
@@ -74,13 +76,9 @@ protected:
         return serverSocket.TransmitData(clientData, data);
     }
 
-
-
     bool ReceiveData(SocketData &clientData, std::string &data) {
         return serverSocket.ReceiveData(clientData, data, defaultMaximumDataSize);
     }
-
-
 
     bool TransmitHTTPtoWeb(std::string host, std::string port) {
         Log log("Transmitting HTTP to Web");
@@ -168,11 +166,7 @@ protected:
 
 public:
     Server() {
-
         ListenConnection();
-
-        std::thread acceptConnectionThread(&Server::AcceptConnections, this);
-        acceptConnectionThread.detach();
 
         /*
         while(true) {

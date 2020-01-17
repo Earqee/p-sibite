@@ -1,15 +1,16 @@
+#ifndef ICVPN_SERVER_ORGANIZER_H
+#define ICVPN_SERVER_ORGANIZER_H
 
 #include "../../applications/organizer/week.h"
 
-class OrganizerData
-{
+class ServerOrganizer {
 
 protected:
     Week week;
 
 public:
 
-    OrganizerData(){}
+    ServerOrganizer() {}
 
     std::string getMenu() {
         std::string output = "Welcome\n";
@@ -57,3 +58,5 @@ public:
         return "ERROR";
     }
 };
+
+#endif
