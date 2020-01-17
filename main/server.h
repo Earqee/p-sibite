@@ -1,19 +1,22 @@
+#ifndef ICVPN_SERVER_H
+#define ICVPN_SERVER_H
+
 #include "../util/header.h"
 #include "../util/log.h"
 #include "../socket/socketdata.h"
 #include "../socket/serversocket.h"
 #include "../socket/socketinfo.h"
 #include "../socket/dummysocket.h"
-
-#include <deque>
+#include "../applications/user.h"
+#include "../main/tracker.h"
 
 class Server {
 
-private:
+protected:
 
     int connectionStatus = INVALID;
     ServerSocket serverSocket = ServerSocket(PORT);
-    std::deque<SocketData> clientsData;
+    Tracker tracker;
 
     bool ListenConnection() {
         Log log("Listening connections.");
@@ -59,11 +62,10 @@ private:
                         log.logError("socket has nonblocking mode set, and there are no pending connections immediately available.");
                     return false;
                 }
-
             }
 
             printf("New connection at %d.\n", ntohs(clientData.refSocketAddress().sin6_port));
-            clientsData.push_back(SocketData(clientData));
+            tracker.insertAtNonAuthenticated(clientData);
         }
         return true;
     }
@@ -72,13 +74,13 @@ private:
         return serverSocket.TransmitData(clientData, data);
     }
 
-    
+
 
     bool ReceiveData(SocketData &clientData, std::string &data) {
         return serverSocket.ReceiveData(clientData, data, defaultMaximumDataSize);
     }
 
-    
+
 
     bool TransmitHTTPtoWeb(std::string host, std::string port) {
         Log log("Transmitting HTTP to Web");
@@ -172,16 +174,20 @@ public:
         std::thread acceptConnectionThread(&Server::AcceptConnections, this);
         acceptConnectionThread.detach();
 
+        /*
         while(true) {
             for(SocketData client : clientsData)
                 ThreadReceiveData(client);
             std::this_thread::sleep_for(std::chrono::seconds(10));
         }
+        */
     }
+
     void ThreadTransmitData(SocketData &clientData, std::string &data) {
         std::thread newTransmission(&Server::TransmitData, this, std::ref(clientData), std::ref(data));
         newTransmission.join();
     }
+
     std::string ThreadReceiveData(SocketData &clientData) {
         std::string dataReceived;
         std::thread newReceivingOfData(&Server::ReceiveData, this,
@@ -190,5 +196,7 @@ public:
         newReceivingOfData.join();
         return dataReceived;
     }
+
 };
 
+#endif

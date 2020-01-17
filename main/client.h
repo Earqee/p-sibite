@@ -49,13 +49,9 @@ private:
             return socket.TransmitData(data);
     }
 
-    
-
     bool ReceiveData(std::string &data) {
         return socket.ReceiveData(data, defaultMaximumDataSize);
     }
-
-    
 
 public:
 

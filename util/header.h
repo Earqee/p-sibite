@@ -2,20 +2,10 @@
 #define ACEVPN_HEADER_H
 
 /* External dependences */
-#include <string>
-#include <stdio.h>
-#include <string.h>
+#include <bits/stdc++.h>
 #include <errno.h>
 #include <netdb.h>
 #include <arpa/inet.h>
-#include <vector>
-#include <set>
-#include <map>
-#include <thread>
-#include <chrono>
-#include <thread>
-#include <iostream>
-#include <ostream>
 
 /*Common namespaces */
 #define INVALID -1
