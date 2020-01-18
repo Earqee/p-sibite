@@ -10,69 +10,88 @@ class ApplicationServer : public Server {
 private:
 
     std::map<std::string, std::string> database;
+    std::mutex mtx;
 
     bool AuthenticateUser(ServerUser &serverUser) {
-        std::string dataReceived = ThreadReceiveData(serverUser.refSocketData());
-        std::string word;
-        std::stringstream stream(dataReceived);
-        stream >> word;
+        Log log("Started authentication");
+        //std::string dataReceived = ThreadReceiveData(serverUser.refSocketData());
+        std::string word, message;
+        //std::stringstream stream(dataReceived);
+        //stream >> word;
         if(word == "HI") {
             std::string login, password;
-            stream >> login >> password;
+            //stream >> login >> password;
             if(database[login] == password) {
                 tracker.insertAtAtOrganizer(serverUser.refSocketData());
                 tracker.removeFromNonAuthenticated(serverUser);
-                std::cout <<"Inseriu";
+                message = "SUCCESS";
+                ThreadTransmitData(serverUser.refSocketData(), message);
                 return true;
             }
         }
+        message = "FAILURE";
+        ThreadTransmitData(serverUser.refSocketData(), message);
         return false;
     }
 
     void ProcessOrganizerRequest(ServerUser &serverUser) {
         std::string dataReceived = ThreadReceiveData(serverUser.refSocketData());
         std::string queryStatus = serverUser.ProcessOrganizerRequest(dataReceived);
-
     }
 
 public:
 
 
     ApplicationServer() : Server() {
-
         database["abc"] = "def";
+        database["abcd"] = "defg";
 
-        std::thread acceptConnections(&Server::AcceptConnections,this);
-        acceptConnections.join();
+        std::thread (&Server::AcceptConnections,this).detach();
 
-        std::thread handleAuthentication(&ApplicationServer::ThreadHandleAutentication, this);
-        handleAuthentication.join();
+        std::thread (&ApplicationServer::ThreadHandleAutentication, this).join();
     }
 
+    /* Fix later */
      void ThreadHandleAutentication() {
-         //while(true) {
+         Log log("Starting listening non authenticated");
+        std::set<int> socketsInQueue;
+
+         while(true) {
              for(ServerUser serverUser : tracker.refNonAuthenticated()) {
-                 std::thread authenticateUser(&ApplicationServer::AuthenticateUser, this,
-                         std::ref(serverUser));
-                 authenticateUser.join(); /* Obs */
-                 std::cout << tracker.refNonAuthenticated().size() << std::endl;
+                 if(!socketsInQueue.count(serverUser.refSocketData().refSocketFD()))  {
+                     socketsInQueue.insert(serverUser.refSocketData().refSocketFD());
+
+                    std::thread (&ApplicationServer::AuthenticateUser, this,
+                        std::ref(serverUser)).join();
+                    break;
+                 }
              }
-
-
-        //}
-    }
-
-
-     /*
-    void ThreadHandleOrganizer() {
-
-        while(true) {
-
-            //for(User user : usersAtOrganizer) {
         }
     }
 
-    */
+
+    void ThreadHandleOrganizer() {
+
+        std::set<int> socketsInQueue;
+
+        while(true) {
+
+             for(ServerUser serverUser : tracker.refAtOrganizer()) {
+
+                 if(!socketsInQueue.count(serverUser.refSocketData().refSocketFD()))  {
+
+                     socketsInQueue.insert(serverUser.refSocketData().refSocketFD());
+
+                    std::thread authenticateUser(&ApplicationServer::AuthenticateUser, this,
+                         std::ref(serverUser));
+                    authenticateUser.join();
+                    break;
+                 }
+             }
+        }
+            //for(User user : usersAtOrganizer) {
+    }
+
 };
 
 int main() {

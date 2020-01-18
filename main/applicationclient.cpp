@@ -8,8 +8,7 @@ private:
 
 public:
     ApplicationClient() : Client() {
-        std::thread authenticateUser(&ApplicationClient::AuthenticateUser, this);
-        authenticateUser.join();
+        AuthenticateUser();
     }
 
     void AuthenticateUser() {
@@ -17,7 +16,9 @@ public:
         std::string login, password;
         std::cin >> login >> password;
         std::string formattedRequest = "HI " + login + " " + password;
-        ThreadTransmitData(formattedRequest);
+        //ThreadTransmitData(formattedRequest);
+        std::string response = ThreadReceiveData();
+        std::cout << response << std::endl;
     }
 
 };

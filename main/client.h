@@ -76,15 +76,15 @@ public:
         return request;
     }
 
+    /* DO NOT DETACH THIS SH*T */
     void ThreadTransmitData(std::string &data) {
-        std::thread newTransmissionOfData(&Client::TransmitData, this,
-                    std::ref(data));
-        newTransmissionOfData.join();
+        std::thread (&Client::TransmitData, this,
+                    std::ref(data)).join();
     }
+
     std::string ThreadReceiveData() {
         std::string dataReceived;
-        std::thread newReceiving(&Client::ReceiveData, this, std::ref(dataReceived));
-        newReceiving.join();
+        std::thread (&Client::ReceiveData, this, std::ref(dataReceived)).join();
         return dataReceived;
     }
 };

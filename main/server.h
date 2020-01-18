@@ -44,7 +44,7 @@ public:
         if(connectionStatus == INVALID)
             return false;
 
-        //while(true) {
+        while(true) {
 
             SocketData clientData;
 
@@ -68,7 +68,7 @@ public:
 
             printf("New connection at %d.\n", ntohs(clientData.refSocketAddress().sin6_port));
             tracker.insertAtNonAuthenticated(clientData);
-        //}
+        }
         return true;
     }
 
@@ -178,16 +178,14 @@ public:
     }
 
     void ThreadTransmitData(SocketData &clientData, std::string &data) {
-        std::thread newTransmission(&Server::TransmitData, this, std::ref(clientData), std::ref(data));
-        newTransmission.join();
+        std::thread (&Server::TransmitData, this, std::ref(clientData), std::ref(data)).join();
     }
 
     std::string ThreadReceiveData(SocketData &clientData) {
         std::string dataReceived;
-        std::thread newReceivingOfData(&Server::ReceiveData, this,
+        std::thread (&Server::ReceiveData, this,
             std::ref(clientData),
-            std::ref(dataReceived));
-        newReceivingOfData.join();
+            std::ref(dataReceived)).join();
         return dataReceived;
     }
 

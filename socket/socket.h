@@ -190,17 +190,16 @@ public:
                 break;
 
             if(recvStatus == INVALID) {
+                log.logCannot();
                 if(errno == EBADF)
                     log.logError("The socket argument is not a valid file descriptor.");
                 if(errno == EINTR) {
                     log.logError("The operation was interrupted by a signal before any data was sent. See Interrupted Primitives.");
-                    continue;
                 }
                 if(errno == ENOTSOCK)
                     log.logError("The descriptor socket is not a socket.");
                 if(errno == EWOULDBLOCK) {
                     log.logError("Nonblocking mode has been set on the socket, and the write operation would block.");
-                    continue;
                 }
                 if(errno == ENOTCONN)
                     log.logError("You never connected this socket.");
@@ -209,8 +208,9 @@ public:
             }
             bytesReceived += recvStatus;
         }
-        dummyData[dataSize]='\0';
-        printf("(%d) SENT = {{\n%s\n}}\n", ntohs(socketData.refSocketAddress().sin6_port), dummyData);
+        dummyData[bytesReceived]='\0';
+        std::cout << "(" << std::to_string(ntohs(socketData.refSocketAddress().sin6_port)) <<
+        ") SENT : " << dummyData << std::endl;
         data = dummyData;
         return true;
     }
