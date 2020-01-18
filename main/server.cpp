@@ -1,5 +1,3 @@
-#ifndef ICVPN_SERVER_H
-#define ICVPN_SERVER_H
 
 #include "../util/header.h"
 #include "../util/log.h"
@@ -85,25 +83,38 @@ public:
     Server() {
         ListenConnection();
 
-        /*
+        AcceptConnections();
+
         while(true) {
-            for(SocketData client : clientsData)
-                ThreadReceiveData(client);
-            std::this_thread::sleep_for(std::chrono::seconds(10));
+
+            for(SocketData client : clientsData) {
+                std::string data = "HI";
+                std::string dataSize = std::to_string(data.size());
+                formatDataSizeString(dataSize);
+
+                ThreadTransmitData(client, dataSize);
+                ThreadTransmitData(client, data);
+            }
+            break;
+
         }
-        */
+
     }
 
     void ThreadTransmitData(SocketData &clientData, std::string &data) {
         serverSocket.TransmitData(clientData, data);
     }
 
-    std::string ThreadReceiveData(SocketData &clientData) {
+    std::string ThreadReceiveData(SocketData &clientData, int dataSize) {
         std::string dataReceived;
-        serverSocket.ReceiveData(dataReceived, defaultMaximumDataSize);
+        serverSocket.ReceiveData(dataReceived, dataSize);
         return dataReceived;
     }
 
 };
 
-#endif
+int main() {
+    Server server;
+    return 0;
+}
+

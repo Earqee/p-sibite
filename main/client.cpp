@@ -1,5 +1,3 @@
-#ifndef ICVPN_CLIENT_H
-#define ICVPN_CLIENT_H
 
 #include "../util/header.h"
 #include "../util/log.h"
@@ -48,29 +46,31 @@ private:
         return true;
     }
 
-    bool TransmitData(std::string &data) {
-            return socket.TransmitData(data);
-    }
-
-    bool ReceiveData(std::string &data) {
-        return socket.ReceiveData(data, defaultMaximumDataSize);
-    }
 
 public:
 
     Client() {
         MakeConnection();
+
+        std::string dataSizeReceived;
+        std::string dataReceived;
+
+        ReceiveData(dataSizeReceived, dataSizeStdAmountOfDigits);
+        ReceiveData(dataReceived, std::atoi(dataSizeReceived.c_str()));
+
     }
 
-    void ThreadTransmitData(std::string &data) {
+    void TransmitData(std::string &data) {
         socket.TransmitData(data);
     }
 
-    std::string ThreadReceiveData() {
-        std::string dataReceived;
-        socket.ReceiveData(dataReceived, defaultMaximumDataSize);
-        return dataReceived;
+    void ReceiveData(std::string &data, int dataSize) {
+        socket.ReceiveData(data, dataSize);
     }
 };
 
-#endif
+
+int main() {
+    Client client;
+    return 0;
+}

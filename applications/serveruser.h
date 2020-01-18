@@ -4,8 +4,7 @@
 #include "../socket/socketdata.h"
 #include "../applications/organizer/serverorganizer.h"
 
-class ServerUser
-{
+class ServerUser {
 private:
     int ID;
     SocketData socketData;
@@ -40,6 +39,7 @@ public:
     bool operator<(const ServerUser &serverUser) const {
         return this->ID < serverUser.ID;
     }
+
 };
 
 #endif

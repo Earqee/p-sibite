@@ -10,10 +10,12 @@ class ApplicationServer : public Server {
 private:
 
     std::map<std::string, std::string> database;
-    std::mutex mtx;
 
     bool AuthenticateUser(ServerUser &serverUser) {
         Log log("Started authentication");
+
+        std::cout << ntohs(serverUser.refSocketData().refSocketAddress().sin6_port);
+        //std::cout << serverUser.refSocketData().refSocketFD() << std::endl;
         std::string dataReceived = ThreadReceiveData(serverUser.refSocketData());
         std::string word, message;
         std::stringstream stream(dataReceived);
@@ -46,20 +48,29 @@ public:
         database["abc"] = "def";
         database["abcd"] = "defg";
 
-        std::thread (&Server::AcceptConnections,this).detach();
+        //std::thread (&Server::AcceptConnections,this).detach();
+        AcceptConnections();
 
-        std::thread (&ApplicationServer::ThreadHandleAutentication, this).join();
+        //std::thread (&ApplicationServer::ThreadHandleAutentication, this).join();
+        //ThreadHandleAutentication();
+
+        for(SocketData client : clientsData) {
+            std::string dataReceived = ThreadReceiveData(client);
+        }
     }
 
     /* Fix later */
      void ThreadHandleAutentication() {
-         Log log("Starting listening non authenticated");
+
+        Log log("Starting listening non authenticated");
         std::set<int> socketsInQueue;
 
          while(true) {
              for(ServerUser serverUser : tracker.refNonAuthenticated()) {
                  if(!socketsInQueue.count(serverUser.refSocketData().refSocketFD()))  {
                      socketsInQueue.insert(serverUser.refSocketData().refSocketFD());
+
+
 
                     std::thread (&ApplicationServer::AuthenticateUser, this,
                         std::ref(serverUser)).join();

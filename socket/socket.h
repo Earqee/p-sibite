@@ -130,10 +130,7 @@ public:
             printf("Sent: %d | Total: %d/%d\n", sendStatus
                     , (sendStatus>0?sendStatus:0) + bytesSent, dataSize);
 
-            if(!sendStatus)
-                break;
-
-            if(sendStatus == INVALID) {
+            if(sendStatus == INVALID ) {
                 log.logCannot();
                 if(errno == EBADF)
                     log.logError("The socket argument is not a valid file descriptor.");
@@ -155,7 +152,6 @@ public:
                     log.logError("You never connected this socket.");
                 if(errno == EPIPE)
                     log.logError("This socket was connected but the connection is now broken.");
-                socketData.refSocketFD() = INVALID;
                 return false;
             }
             bytesSent += sendStatus;
@@ -186,10 +182,7 @@ public:
             printf("Received: %d | Total: %d/%d\n", recvStatus
                     , (recvStatus>0?recvStatus:0) + bytesReceived, dataSize);
 
-            if(!recvStatus)
-                break;
-
-            if(recvStatus == INVALID) {
+            if(recvStatus == INVALID ) {
                 log.logCannot();
                 if(errno == EBADF)
                     log.logError("The socket argument is not a valid file descriptor.");
@@ -203,15 +196,18 @@ public:
                 }
                 if(errno == ENOTCONN)
                     log.logError("You never connected this socket.");
-                socketData.refSocketFD() = INVALID;
                 return false;
             }
             bytesReceived += recvStatus;
+
+            printf("%d %d \n", bytesReceived, dataSize);
         }
-        dummyData[bytesReceived]='\0';
+        if(dataSize == bytesReceived) {
+            dummyData[bytesReceived]='\0';
+            data = dummyData;
+        }
         std::cout << "(" << std::to_string(ntohs(socketData.refSocketAddress().sin6_port)) <<
-        ") SENT : " << dummyData << std::endl;
-        data = dummyData;
+        ") SENT : " << data << std::endl;
         return true;
     }
 

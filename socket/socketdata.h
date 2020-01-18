@@ -16,9 +16,9 @@ public:
     }
 
     SocketData(const SocketData &socketData) {
-        socketFD = socketData.socketFD;
-        socketAddress = socketData.socketAddress;
-        socketAddressLen = socketData.socketAddressLen;
+        this->socketFD = socketData.socketFD;
+        this->socketAddress = socketData.socketAddress;
+        this->socketAddressLen = socketData.socketAddressLen;
     }
 
     int& refSocketFD() {

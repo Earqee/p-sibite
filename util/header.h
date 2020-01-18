@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#include <unistd.h>
 
 /*Common namespaces */
 #define INVALID -1
@@ -20,6 +21,11 @@
 const int defaultFamily = AF_INET6;
 const int defaultSocketType = SOCK_STREAM;
 const int defaultProtocol = getprotobyname("tcp")->p_proto;
+
+void formatDataSizeString(std::string &data) {
+    while(data.size()<dataSizeStdAmountOfDigits)
+        data.insert(data.begin(), '0');
+}
 
 #endif
 
