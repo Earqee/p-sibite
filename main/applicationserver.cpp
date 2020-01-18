@@ -14,13 +14,13 @@ private:
 
     bool AuthenticateUser(ServerUser &serverUser) {
         Log log("Started authentication");
-        //std::string dataReceived = ThreadReceiveData(serverUser.refSocketData());
+        std::string dataReceived = ThreadReceiveData(serverUser.refSocketData());
         std::string word, message;
-        //std::stringstream stream(dataReceived);
-        //stream >> word;
+        std::stringstream stream(dataReceived);
+        stream >> word;
         if(word == "HI") {
             std::string login, password;
-            //stream >> login >> password;
+            stream >> login >> password;
             if(database[login] == password) {
                 tracker.insertAtAtOrganizer(serverUser.refSocketData());
                 tracker.removeFromNonAuthenticated(serverUser);

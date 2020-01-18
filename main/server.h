@@ -178,14 +178,12 @@ public:
     }
 
     void ThreadTransmitData(SocketData &clientData, std::string &data) {
-        std::thread (&Server::TransmitData, this, std::ref(clientData), std::ref(data)).join();
+        serverSocket.TransmitData(clientData, data);
     }
 
     std::string ThreadReceiveData(SocketData &clientData) {
         std::string dataReceived;
-        std::thread (&Server::ReceiveData, this,
-            std::ref(clientData),
-            std::ref(dataReceived)).join();
+        serverSocket.ReceiveData(dataReceived, defaultMaximumDataSize);
         return dataReceived;
     }
 
