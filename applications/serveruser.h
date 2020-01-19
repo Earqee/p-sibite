@@ -6,7 +6,9 @@
 
 class ServerUser {
 private:
-    int ID;
+
+
+    int ID, location = NOT_AUTH;
     SocketData socketData;
     ServerOrganizer serverOrganizer;
 public:
@@ -20,8 +22,13 @@ public:
         return ID;
     }
 
+
     int& refID() {
         return ID;
+    }
+
+    int& refLocation() {
+        return location;
     }
 
     SocketData& refSocketData() {

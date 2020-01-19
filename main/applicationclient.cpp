@@ -9,7 +9,8 @@ private:
 
 public:
     ApplicationClient() : Client() {
-        AuthenticateUser();
+        if(AuthenticateUser())
+            AskMenu();
     }
 
     std::string ReceiveData2Steps() {
@@ -29,17 +30,31 @@ public:
         TransmitData(data);
     }
 
-    void AuthenticateUser() {
-        printf("digite o login e senha\n");
+    bool AuthenticateUser() {
+        Log log("Authentication began.");
 
         std::string login, password;
-        std::cin >> login >> password;
+        printf("Please, enter your login: ");
+        std::cin >> login;
+        printf("Please, enter your password: ");
+        std::cin >> password;
         std::string formattedRequest = "HI " + login + " " + password;
 
         TransmitData2Steps(formattedRequest);
         std::string response = ReceiveData2Steps();
-        std::cout << response << std::endl;
+        if(response == "SUCCESS")
+            return true;
+        return false;
     }
+
+    bool AskMenu() {
+        Log log("Asking menu.");
+        std::string response = ReceiveData2Steps();
+        std::cout << response << std::endl;
+
+        return true;
+    }
+
 };
 
 int main() {

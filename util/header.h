@@ -18,6 +18,11 @@
 #define dataSizeStdAmountOfDigits 5
 #define defaultMaximumDataSize 256
 
+#define NOT_AUTH -1
+#define AT_MENU 0
+#define AT_ORGANIZER 1
+#define AT_TORRENT 2
+
 const int defaultFamily = AF_INET6;
 const int defaultSocketType = SOCK_STREAM;
 const int defaultProtocol = getprotobyname("tcp")->p_proto;

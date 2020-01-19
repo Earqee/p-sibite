@@ -43,6 +43,7 @@ private:
                 tracker.insertAtAtOrganizer(user.refSocketData());
                 tracker.removeFromNonAuthenticated(user);
                 message = "SUCCESS";
+                user.refLocation() = AT_MENU;
                 TransmitData2Steps(user.refSocketData(), message);
                 return true;
             }
@@ -52,13 +53,15 @@ private:
         return false;
     }
 
-    /*
-    void ProcessOrganizerRequest(ServerUser &serverUser) {
-        std::string dataReceived = ThreadReceiveData(serverUser.refSocketData());
-        std::string queryStatus = serverUser.ProcessOrganizerRequest(dataReceived);
+    void HandleUserInMenu(ServerUser &user) {
+        std::string message = user.getOrganizerMenu();
+        TransmitData2Steps(user.refSocketData(), message);
     }
 
-    */
+    void ProcessOrganizerRequest(ServerUser &serverUser) {
+        std::string dataReceived = ReceiveData2Steps(serverUser.refSocketData());
+        //std::string queryStatus = serverUser.ProcessOrganizerRequest(dataReceived);
+    }
 
 public:
 
@@ -66,30 +69,40 @@ public:
         database["abc"] = "def";
         database["abcd"] = "defg";
 
-        ThreadHandleAutentication();
+        HandleUserRequest();
     }
 
-    /* Fix later */
-     void ThreadHandleAutentication() {
+     /* Need handle client dc */
+     void HandleUserRequest() {
+         Log log("Started listening users at organizer.");
 
-        Log log("Starting listening non authenticated");
-        std::set<int> socketsInQueue;
-
-        std::cout << tracker.refNonAuthenticated().size();
+         std::set<int> processInQueue;
 
          while(true) {
 
              for(ServerUser user : tracker.refNonAuthenticated()) {
 
-                 if(!socketsInQueue.count(user.refSocketData().refSocketFD()))  {
-                     socketsInQueue.insert(user.refSocketData().refSocketFD());
-                     AuthenticateUser(user);
-                    break;
+                 int &userRequestID = user.refSocketData().refSocketFD();
+
+                 if(!processInQueue.count(userRequestID))  {
+
+                     processInQueue.insert(userRequestID);
+
+                     if(user.refLocation() == NOT_AUTH)
+                         AuthenticateUser(user);
+                     if(user.refLocation() == AT_MENU)
+                         HandleUserInMenu(user);
+                     //if(user.refLocation() == AT_ORGANIZER)
+                         //ProcessOrganizerRequest(user);
+
+                     processInQueue.erase(userRequestID);
                  }
+
              }
-             break;
-        }
-    }
+
+             std::this_thread::sleep_for(std::chrono::seconds(5));
+         }
+     }
 
 
 };

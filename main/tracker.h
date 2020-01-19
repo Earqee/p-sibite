@@ -26,7 +26,6 @@ public:
         nonAuthenticated.erase(serverUser);
     }
 
-
     void removeFromAtAtOrganizer(ServerUser &serverUser) {
         atOrganizer.erase(serverUser);
     }
