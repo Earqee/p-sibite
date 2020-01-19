@@ -1,9 +1,9 @@
-#ifndef ACEVPN_LOCAL_SOCKET_H
-#define ACEVPN_LOCAL_SOCKET_H
+#ifndef PROJECT_BIRD_CLIENT_SOCKET_H
+#define PROJECT_BIRD_CLIENT_SOCKET_H
 
 #include "../util/header.h"
 #include "../util/log.h"
-#include "socket.h"
+#include "../socket/socket.h"
 
 class ClientSocket : public Socket {
 

@@ -1,5 +1,5 @@
-#ifndef ACEVPN_DUMMY_SOCKET_H
-#define ACEVPN_DUMMY_SOCKET_H
+#ifndef PROJECT_BIRD_DUMMY_SOCKET_H
+#define PROJECT_BIRD_DUMMY_SOCKET_H
 
 #include "../util/header.h"
 #include "../util/log.h"

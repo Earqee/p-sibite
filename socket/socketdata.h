@@ -1,5 +1,5 @@
-#ifndef ICVPN_SOCKET_DATA_H
-#define ICVPN_SOCKET_DATA_H
+#ifndef PROJECT_BIRD_SOCKET_DATA_H
+#define PROJECT_BIRD_SOCKET_DATA_H
 
 #include "../util/header.h"
 

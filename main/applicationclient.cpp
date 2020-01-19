@@ -1,4 +1,3 @@
-
 #include "../util/header.h"
 #include "../util/log.h"
 #include "../main/client.h"

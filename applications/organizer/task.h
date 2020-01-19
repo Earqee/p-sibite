@@ -1,19 +1,21 @@
-//#include "../../util/header.h"
-//#include "../../util/log.h"
-//#include "../../main/client.h"
-//#include "../../main/server.h"
+#ifndef PROJECT_BIRD_TASK_H
+#define PROJECT_BIRD_TASK_H
 
-class Task
-{
-public:
+#include "../../util/header.h"
+#include "../../util/log.h"
+
+class Task {
+private:
     std::string title;
+public:
 
     Task(std::string name){
-        title = name;
+        this->title = name;
     }
 
     std::string& refTitle() {
     	return title;
     }
-
 };
+
+#endif

@@ -1,5 +1,5 @@
-#ifndef ICVPN_CLIENT_H
-#define ICVPN_CLIENT_H
+#ifndef PROJECT_BIRD_CLIENT_H
+#define PROJECT_BIRD_CLIENT_H
 
 #include "../util/header.h"
 #include "../util/log.h"

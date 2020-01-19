@@ -1,11 +1,13 @@
-#ifndef ICVPN_SERVER_ORGANIZER_H
-#define ICVPN_SERVER_ORGANIZER_H
+#ifndef PROJECT_BIRD_SERVER_ORGANIZER_H
+#define PROJECT_BIRD_SERVER_ORGANIZER_H
 
+#include "../../util/header.h"
+#include "../../util/log.h"
 #include "../../applications/organizer/week.h"
 
 class ServerOrganizer {
 
-protected:
+private:
     Week week;
 
 public:

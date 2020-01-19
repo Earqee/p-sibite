@@ -1,5 +1,5 @@
-#ifndef ICVPN_TRACKER_H
-#define ICVPN_TRACKER_H
+#ifndef PROJECT_BIRD_TRACKER_H
+#define PROJECT_BIRD_TRACKER_H
 
 #include "../util/header.h"
 #include "../applications/serveruser.h"

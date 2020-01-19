@@ -1,5 +1,5 @@
-#ifndef ICVPN_SERVER_H
-#define ICVPN_SERVER_H
+#ifndef PROJECT_BIRD_SERVER_H
+#define PROJECT_BIRD_SERVER_H
 
 #include "../util/header.h"
 #include "../util/log.h"

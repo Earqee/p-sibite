@@ -1,10 +1,13 @@
-#ifndef ICVPN_SERVER_USER_H
-#define ICVPN_SERVER_USER_H
+#ifndef PROJECT_BIRD_SERVER_USER_H
+#define PROJECT_BIRD_SERVER_USER_H
 
+#include "../util/header.h"
+#include "../util/log.h"
 #include "../socket/socketdata.h"
 #include "../applications/organizer/serverorganizer.h"
 
 class ServerUser {
+
 private:
     int ID, location, status;
     SocketData socketData;
@@ -26,8 +29,6 @@ public:
         this->status = status;
         this->socketData = socketData;
     }
-
-
 
     int getID() {
         return ID;
@@ -64,7 +65,6 @@ public:
     bool operator<(const ServerUser &serverUser) const {
         return this->ID < serverUser.ID;
     }
-
 };
 
 #endif

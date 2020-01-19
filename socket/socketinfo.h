@@ -1,5 +1,8 @@
-#ifndef ICVPN_SOCKET_INFO
-#define ICVPN_SOCKET_INFO
+#ifndef PROJECT_BIRD_SOCKET_INFO_H
+#define PROJECT_BIRD_SOCKET_INFO_H
+
+#include "../util/header.h"
+#include "../util/log.h"
 
 class SocketInfo {
 
