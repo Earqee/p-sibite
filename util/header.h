@@ -1,5 +1,5 @@
-#ifndef ACEVPN_HEADER_H
-#define ACEVPN_HEADER_H
+#ifndef PROJECT_BIRD_HEADER_H
+#define PROJECT_BIRD_HEADER_H
 
 /* External dependences */
 #include <bits/stdc++.h>
