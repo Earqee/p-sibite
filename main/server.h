@@ -44,7 +44,7 @@ public:
         if(connectionStatus == INVALID)
             return false;
 
-        //while(true) {
+        while(true) {
 
             SocketData clientData;
 
@@ -68,7 +68,7 @@ public:
 
             printf("New connection at %d.\n", ntohs(clientData.refSocketAddress().sin6_port));
             tracker.insertAtNonAuthenticated(clientData);
-        //}
+        }
         return true;
     }
 
@@ -76,8 +76,7 @@ public:
     Server() {
         ListenConnection();
 
-        AcceptConnections();
-
+        std::thread (&Server::AcceptConnections, this).detach();
 
     }
 

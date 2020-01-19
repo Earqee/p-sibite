@@ -11,6 +11,14 @@ private:
     ServerOrganizer serverOrganizer;
 public:
 
+    ServerUser(const ServerUser &serverUser) {
+        this->ID = serverUser.ID;
+        this->location = serverUser.location;
+        this->status = serverUser.status;
+        this->socketData = serverUser.socketData;
+        this->serverOrganizer = serverUser.serverOrganizer;
+    }
+
     ServerUser(int ID, int location, int status,
             SocketData &socketData) {
         this->ID = ID;
@@ -18,6 +26,8 @@ public:
         this->status = status;
         this->socketData = socketData;
     }
+
+
 
     int getID() {
         return ID;

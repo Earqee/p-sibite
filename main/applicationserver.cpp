@@ -30,13 +30,14 @@ private:
     }
 
     void AuthenticateUser(ServerUser &user) {
-        Log log("Started authentication");
+        Log log("Started authentication.");
 
         while(true) {
 
             /* Critical: check if user still connected */
-            if(user.refStatus() == DISCONNECTED)
+            if(user.refStatus() == DISCONNECTED) {
                 return;
+            }
 
             /* Receive "HI <login> <password>" from client or
              * Received "CREATE <login> <password>" from client */
@@ -88,7 +89,7 @@ private:
         TransmitData2Steps(user, message);
     }
 
-    void HandleUserInMenu(ServerUser &user) {
+    void HandleUserAtMenu(ServerUser &user) {
         Log log("Handle user at menu.");
 
         /* Sent menu to client */
@@ -143,36 +144,48 @@ public:
         HandleUserRequest();
     }
 
-     /* Need handle client dc */
-     void HandleUserRequest() {
-         Log log("Handling user requests.");
+    /* Need handle client dc */
+    void HandleUserRequest() {
+        Log log("Handling user requests.");
 
-         std::set<int> processInQueue;
+        while(true) {
 
-         while(true) {
+            std::deque<ServerUser> &userQueue = tracker.refNonAuthenticated();
 
-             for(ServerUser user : tracker.refNonAuthenticated()) {
+            while(!userQueue.empty()) {
 
-                 int &userRequestID = user.refSocketData().refSocketFD();
+                ServerUser *user = new ServerUser(userQueue.front());
+                std::thread (&ApplicationServer::ThreadHandleUserRequest, this,
+                    std::ref(userQueue), user).detach();
+                userQueue.pop_front();
+            }
 
-                 if(!processInQueue.count(userRequestID))  {
+            //std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
+    }
 
-                     processInQueue.insert(userRequestID);
+    void ThreadHandleUserRequest(std::deque<ServerUser> &userQueue, ServerUser *user) {
 
-                     if(user.refLocation() == NOT_AUTH)
-                         AuthenticateUser(user);
-                     if(user.refLocation() == AT_MENU)
-                         HandleUserInMenu(user);
-                     if(user.refLocation() == AT_ORGANIZER)
-                         HandleUserAtOrganizer(user);
+        ServerUser &serverUser = *user;
 
-                     processInQueue.erase(userRequestID);
-                 }
-             }
+        if(serverUser.refStatus() == CONNECTED) {
+            /* Process user location */
+            if(serverUser.refLocation() == NOT_AUTH)
+                AuthenticateUser(serverUser);
+            if(serverUser.refLocation() == AT_MENU)
+                HandleUserAtMenu(serverUser);
+            if(serverUser.refLocation() == AT_ORGANIZER)
+                HandleUserAtOrganizer(serverUser);
 
-             std::this_thread::sleep_for(std::chrono::seconds(5));
-         }
-     }
+            /* User still connected? */
+            if(serverUser.refStatus() == CONNECTED) {
+                std::cerr << "CONNECTED";
+                userQueue.push_back(serverUser);
+                return;
+            }
+        }
+        free(user);
+    }
 };
 
 int main() {
