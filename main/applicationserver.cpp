@@ -28,28 +28,55 @@ private:
         Log log("Started authentication");
 
         while(true) {
-            /* Receive "HI <login> <password>" from client */
+
+            /* Receive "HI <login> <password>" from client or
+             * Received "CREATE <login> <password>" from client */
             std::string dataReceived = ReceiveData2Steps(user.refSocketData());
 
-            /* Process received data */
-            std::string word, message;
+            std::string word;
             std::stringstream stream(dataReceived);
             stream >> word;
             if(word == "HI") {
-                std::string login, password;
-                stream >> login >> password;
-                if(database[login] == password) {
-                    //tracker.insertAtAtOrganizer(user.refSocketData());
-                    //tracker.removeFromNonAuthenticated(user);
-                    message = "SUCCESS";
-                    user.refLocation() = AT_MENU;
-                    TransmitData2Steps(user.refSocketData(), message);
-                    return;
-                }
+                LoginUser(user, stream);
+                return;
             }
-            message = "FAILURE";
-            TransmitData2Steps(user.refSocketData(), message);
+            if(word == "CREATE")
+                CreateUser(user, stream);
         }
+
+    }
+
+    void CreateUser(ServerUser &user, std::stringstream &stream) {
+        Log log("User creation.");
+
+        std::string login, password, message;
+        stream >> login >> password;
+        if(!database.count(login)) {
+            database[login] = password;
+            message = "SUCCESS";
+            TransmitData2Steps(user.refSocketData(), message);
+            return;
+        }
+        message = "FAILURE";
+        TransmitData2Steps(user.refSocketData(), message);
+    }
+
+    void LoginUser(ServerUser &user, std::stringstream &stream) {
+        Log log("User login.");
+
+        /* Process received data */
+        std::string login, password, message;
+        stream >> login >> password;
+        if(database[login] == password) {
+            //tracker.insertAtAtOrganizer(user.refSocketData());
+            //tracker.removeFromNonAuthenticated(user);
+            message = "SUCCESS";
+            user.refLocation() = AT_MENU;
+            TransmitData2Steps(user.refSocketData(), message);
+            return;
+        }
+        message = "FAILURE";
+        TransmitData2Steps(user.refSocketData(), message);
     }
 
     void HandleUserInMenu(ServerUser &user) {
@@ -98,15 +125,13 @@ private:
 public:
 
     ApplicationServer() : Server() {
-        database["abc"] = "def";
-        database["abcd"] = "efgh";
 
         HandleUserRequest();
     }
 
      /* Need handle client dc */
      void HandleUserRequest() {
-         Log log("Started listening users at organizer.");
+         Log log("Handling user requests.");
 
          std::set<int> processInQueue;
 

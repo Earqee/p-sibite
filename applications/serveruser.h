@@ -35,7 +35,7 @@ public:
     }
 
     std::string getMenu() {
-        return "Welcome!\n Enter <number> to proceed: <1> Organizer <2> Torrent\n";
+        return "Welcome!\nEnter <number> to proceed:\n<1> Organizer\n<2> Torrent\n";
     }
 
     std::string getOrganizerMenu() {

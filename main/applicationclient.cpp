@@ -40,22 +40,54 @@ public:
     bool AuthenticateUser() {
         Log log("Authentication began.");
 
+        while(true) {
+
+            printf("Welcome!\nEnter <number> to proceed:\n<1> Login.\n<?> Create account.");
+
+            std::string input; std::cin >> input;
+            std::string dataSent;
+            if(input == "1") {
+                dataSent = LoginUser();
+                TransmitData2Steps(dataSent);
+                std::string response = ReceiveData2Steps();
+                if(response == "SUCCESS")
+                    return true;
+            }
+            else {
+                dataSent = CreateUser();
+                TransmitData2Steps(dataSent);
+                std::string response = ReceiveData2Steps();
+                if(response == "SUCCESS")
+                    continue;
+            }
+            return false;
+        }
+    }
+
+    std::string CreateUser() {
+        Log log("Started creating user.");
+
+        std::string login, password;
+
+        printf("Please, enter your desired login: ");
+        std::cin >> login;
+        printf("Please, enter your desired password: ");
+        std::cin >> password;
+
+        return "CREATE " + login + " " + password;
+    }
+
+    std::string LoginUser() {
+        Log log("Started user login.");
+
         std::string login, password;
 
         printf("Please, enter your login: ");
         std::cin >> login;
-
         printf("Please, enter your password: ");
         std::cin >> password;
 
-        std::string formattedRequest = "HI " + login + " " + password;
-        TransmitData2Steps(formattedRequest);
-
-        std::string response = ReceiveData2Steps();
-        if(response == "SUCCESS")
-            return true;
-
-        return false;
+        return "HI " + login + " " + password;
     }
 
     std::string HandleUserAtMenu() {
