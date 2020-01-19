@@ -61,7 +61,7 @@ private:
 
         /* Receive client input from menu options*/
         std::string dataReceived = ReceiveData2Steps(user.refSocketData());
-        std::cout << dataReceived << std::endl;
+        //std::cout << dataReceived << std::endl;
 
         /* Make changes in user location */
         if(dataReceived == "ORGANIZER")
@@ -82,7 +82,7 @@ private:
 
             /* Receive client input from menu options */
             std::string dataReceived = ReceiveData2Steps(user.refSocketData());
-            std::cout << dataReceived << std::endl;
+            //std::cout << dataReceived << std::endl;
             if(dataReceived == "QUIT") {
                 user.refLocation() = AT_MENU;
                 return;
@@ -90,7 +90,7 @@ private:
 
             /* Make changes in databse */
             std::string requestStatus = user.ProcessOrganizerRequest(dataReceived);
-            std::cout << requestStatus << std::endl;
+            //std::cout << requestStatus << std::endl;
             TransmitData2Steps(user.refSocketData(), requestStatus);
         }
     }
@@ -137,6 +137,6 @@ public:
 };
 
 int main() {
-
     ApplicationServer applicationServer;
+    return 0;
 }

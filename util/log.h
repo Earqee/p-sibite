@@ -9,7 +9,8 @@ private:
     std::string action;
 
     void log(std::string status) {
-        printf("[%s] %s\n", status.c_str(), action.c_str());
+        if(DEBUG)
+            printf("[%s] %s\n", status.c_str(), action.c_str());
     }
 public:
     Log(std::string action) {
@@ -23,7 +24,8 @@ public:
         log("could not finish");
     }
     void logError(std::string message) {
-        printf("[error] %d - %s (%s)\n", errno, strerror(errno), message.c_str());
+        if(DEBUG)
+            printf("[error] %d - %s (%s)\n", errno, strerror(errno), message.c_str());
     }
 };
 

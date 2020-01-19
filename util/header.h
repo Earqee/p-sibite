@@ -8,6 +8,9 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
+/* Debugging */
+#define DEBUG 1
+
 /*Common namespaces */
 #define INVALID -1
 #define CHAR_SIZE 8
@@ -18,6 +21,7 @@
 #define dataSizeStdAmountOfDigits 5
 #define defaultMaximumDataSize 256
 
+/* */
 #define NOT_AUTH -1
 #define AT_MENU 0
 #define AT_ORGANIZER 1

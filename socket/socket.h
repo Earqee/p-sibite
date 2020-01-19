@@ -121,14 +121,13 @@ public:
         int bytesSent = 0,
             dataSize = data.size();
 
-        printf("DataSize:: %d\n", dataSize);
-
         while(bytesSent != dataSize) {
 
             int sendStatus = send(socketData.refSocketFD(), &dummyData + bytesSent, dataSize - bytesSent, 0);
 
-            printf("Sent: %d | Total: %d/%d\n", sendStatus
-                    , (sendStatus>0?sendStatus:0) + bytesSent, dataSize);
+            if(DEBUG)
+                printf("Sent: %d | Total: %d/%d\n", sendStatus,
+                (sendStatus>0?sendStatus:0) + bytesSent, dataSize);
 
             if(sendStatus == INVALID ) {
                 log.logCannot();
@@ -156,6 +155,8 @@ public:
             }
             bytesSent += sendStatus;
         }
+        if(DEBUG)
+                printf("Sent to socket <%d> the message: {\n%s\n}\n", ntohs(socketData.refSocketAddress().sin6_port), dummyData);
         return true;
     }
 
@@ -177,10 +178,9 @@ public:
 
             int recvStatus = recv(socketData.refSocketFD(), &dummyData + bytesReceived, dataSize - bytesReceived, 0);
 
-            printf("RECV STATUS HAS:: %d\n", recvStatus);
-
-            printf("Received: %d | Total: %d/%d\n", recvStatus
-                    , (recvStatus>0?recvStatus:0) + bytesReceived, dataSize);
+            if(DEBUG)
+                printf("Received: %d | Total: %d/%d\n", recvStatus,
+                (recvStatus>0?recvStatus:0) + bytesReceived, dataSize);
 
             if(recvStatus == INVALID ) {
                 log.logCannot();
@@ -199,15 +199,14 @@ public:
                 return false;
             }
             bytesReceived += recvStatus;
-
-            printf("%d %d \n", bytesReceived, dataSize);
         }
+
         if(dataSize == bytesReceived) {
             dummyData[bytesReceived]='\0';
             data = dummyData;
+            if(DEBUG)
+                printf("Received from socket <%d> the message: {\n%s\n}\n", ntohs(socketData.refSocketAddress().sin6_port), dummyData);
         }
-        std::cout << "(" << std::to_string(ntohs(socketData.refSocketAddress().sin6_port)) <<
-        ") SENT : " << data << std::endl;
         return true;
     }
 

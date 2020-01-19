@@ -62,12 +62,12 @@ public:
         Log log("Handling user at menu.");
 
         /* Receive menu */
-        std::string dataReceived = ReceiveData2Steps();
-        std::cout << dataReceived << std::endl;
+        std::string menuReceived = ReceiveData2Steps();
+        std::cout << menuReceived << std::endl;
 
         /* Process user input */
         std::string menuRequest = user.HandleMenu();
-        std::cout << menuRequest << std::endl;
+        //std::cout << menuRequest << std::endl;
 
         /*Transmit request to server */
         TransmitData2Steps(menuRequest);
@@ -78,12 +78,12 @@ public:
         Log log("Handling user at organizer menu.");
 
         /* Receive organizer menu */
-        std::string dataReceived = ReceiveData2Steps();
-        std::cout << dataReceived << std::endl;
+        std::string menuReceived = ReceiveData2Steps();
+        std::cout << menuReceived << std::endl;
 
         /* Process user input */
         std::string menuRequest = user.HandleOrganizerMenu();
-        std::cout << menuRequest << std::endl;
+        //std::cout << menuRequest << std::endl;
 
         /*Transmit request to server */
         TransmitData2Steps(menuRequest);
