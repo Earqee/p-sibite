@@ -7,21 +7,26 @@ private:
 
     std::map<std::string, std::string> database;
 
-    std::string ReceiveData2Steps(SocketData &socketData) {
+    std::string ReceiveData2Steps(ServerUser &user) {
         std::string dataSizeReceived;
-        ReceiveData(socketData, std::ref(dataSizeReceived), dataSizeStdAmountOfDigits);
+        if(!ReceiveData(user.refSocketData(), std::ref(dataSizeReceived), dataSizeStdAmountOfDigits))
+            user.refStatus() = DISCONNECTED;
 
         std::string dataReceived;
-        ReceiveData(socketData, std::ref(dataReceived), std::atoi(dataSizeReceived.c_str()));
+        if(!ReceiveData(user.refSocketData(), std::ref(dataReceived), std::atoi(dataSizeReceived.c_str())))
+            user.refStatus() = DISCONNECTED;
+
         return dataReceived;
     }
 
-    void TransmitData2Steps(SocketData &socketData, std::string &data) {
+    void TransmitData2Steps(ServerUser &user, std::string &data) {
         std::string dataSize = std::to_string(data.size());
         formatDataSizeString(dataSize);
-        TransmitData(socketData, std::ref(dataSize));
+        if(!TransmitData(user.refSocketData(), std::ref(dataSize)))
+            user.refStatus() = DISCONNECTED;
 
-        TransmitData(socketData, data);
+        if(!TransmitData(user.refSocketData(), data))
+            user.refStatus() = DISCONNECTED;
     }
 
     void AuthenticateUser(ServerUser &user) {
@@ -29,9 +34,13 @@ private:
 
         while(true) {
 
+            /* Critical: check if user still connected */
+            if(user.refStatus() == DISCONNECTED)
+                return;
+
             /* Receive "HI <login> <password>" from client or
              * Received "CREATE <login> <password>" from client */
-            std::string dataReceived = ReceiveData2Steps(user.refSocketData());
+            std::string dataReceived = ReceiveData2Steps(user);
 
             std::string word;
             std::stringstream stream(dataReceived);
@@ -54,11 +63,11 @@ private:
         if(!database.count(login)) {
             database[login] = password;
             message = "SUCCESS";
-            TransmitData2Steps(user.refSocketData(), message);
+            TransmitData2Steps(user, message);
             return;
         }
         message = "FAILURE";
-        TransmitData2Steps(user.refSocketData(), message);
+        TransmitData2Steps(user, message);
     }
 
     void LoginUser(ServerUser &user, std::stringstream &stream) {
@@ -72,11 +81,11 @@ private:
             //tracker.removeFromNonAuthenticated(user);
             message = "SUCCESS";
             user.refLocation() = AT_MENU;
-            TransmitData2Steps(user.refSocketData(), message);
+            TransmitData2Steps(user, message);
             return;
         }
         message = "FAILURE";
-        TransmitData2Steps(user.refSocketData(), message);
+        TransmitData2Steps(user, message);
     }
 
     void HandleUserInMenu(ServerUser &user) {
@@ -84,10 +93,10 @@ private:
 
         /* Sent menu to client */
         std::string dataSent = user.getMenu();
-        TransmitData2Steps(user.refSocketData(), dataSent);
+        TransmitData2Steps(user, dataSent);
 
         /* Receive client input from menu options*/
-        std::string dataReceived = ReceiveData2Steps(user.refSocketData());
+        std::string dataReceived = ReceiveData2Steps(user);
         //std::cout << dataReceived << std::endl;
 
         /* Make changes in user location */
@@ -103,12 +112,17 @@ private:
         Log log("Handle user at organizer.");
 
         while(true) {
+
+            /* Critical: check if user still connected */
+            if(user.refStatus() == DISCONNECTED)
+                return;
+
             /* Send organizer menu to client */
             std::string dataSent = user.getOrganizerMenu();
-            TransmitData2Steps(user.refSocketData(), dataSent);
+            TransmitData2Steps(user, dataSent);
 
             /* Receive client input from menu options */
-            std::string dataReceived = ReceiveData2Steps(user.refSocketData());
+            std::string dataReceived = ReceiveData2Steps(user);
             //std::cout << dataReceived << std::endl;
             if(dataReceived == "QUIT") {
                 user.refLocation() = AT_MENU;
@@ -118,7 +132,7 @@ private:
             /* Make changes in databse */
             std::string requestStatus = user.ProcessOrganizerRequest(dataReceived);
             //std::cout << requestStatus << std::endl;
-            TransmitData2Steps(user.refSocketData(), requestStatus);
+            TransmitData2Steps(user, requestStatus);
         }
     }
 

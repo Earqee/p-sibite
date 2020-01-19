@@ -9,7 +9,7 @@
 #include <unistd.h>
 
 /* Debugging */
-#define DEBUG 0
+#define DEBUG 1
 
 /*Common namespaces */
 #define INVALID -1
@@ -21,11 +21,15 @@
 #define dataSizeStdAmountOfDigits 5
 #define defaultMaximumDataSize 256
 
-/* */
+/* ServerUser LOCATION */
 #define NOT_AUTH -1
 #define AT_MENU 0
 #define AT_ORGANIZER 1
 #define AT_TORRENT 2
+
+/* ServerUser STATUS*/
+#define CONNECTED 0
+#define DISCONNECTED 1
 
 const int defaultFamily = AF_INET6;
 const int defaultSocketType = SOCK_STREAM;

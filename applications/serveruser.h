@@ -6,15 +6,16 @@
 
 class ServerUser {
 private:
-
-
-    int ID, location = NOT_AUTH;
+    int ID, location, status;
     SocketData socketData;
     ServerOrganizer serverOrganizer;
 public:
 
-    ServerUser(int ID, SocketData &socketData) {
+    ServerUser(int ID, int location, int status,
+            SocketData &socketData) {
         this->ID = ID;
+        this->location = location;
+        this->status = status;
         this->socketData = socketData;
     }
 
@@ -28,6 +29,10 @@ public:
 
     int& refLocation() {
         return location;
+    }
+
+    int& refStatus() {
+        return status;
     }
 
     SocketData& refSocketData() {

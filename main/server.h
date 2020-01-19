@@ -81,12 +81,12 @@ public:
 
     }
 
-    void TransmitData(SocketData &clientData, std::string &data) {
-        serverSocket.TransmitData(clientData, data);
+    bool TransmitData(SocketData &clientData, std::string &data) {
+        return serverSocket.TransmitData(clientData, data);
     }
 
-    void ReceiveData(SocketData &clientData, std::string &data, int dataSize) {
-        serverSocket.ReceiveData(clientData, data, dataSize);
+    bool ReceiveData(SocketData &clientData, std::string &data, int dataSize) {
+        return serverSocket.ReceiveData(clientData, data, dataSize);
     }
 
 };

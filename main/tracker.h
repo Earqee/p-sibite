@@ -13,14 +13,12 @@ private:
 public:
 
     void insertAtNonAuthenticated(SocketData &socketData) {
-        nonAuthenticated.insert(ServerUser(nextNonAuthenticatedID++, socketData));
+        nonAuthenticated.insert(ServerUser(nextNonAuthenticatedID++, NOT_AUTH, CONNECTED, socketData));
     }
 
     void insertAtAtOrganizer(SocketData &socketData) {
-        atOrganizer.insert(ServerUser(nextNonAuthenticatedID++, socketData));
+        atOrganizer.insert(ServerUser(nextNonAuthenticatedID++, NOT_AUTH, CONNECTED, socketData));
     }
-
-    //
 
     void removeFromNonAuthenticated(ServerUser &serverUser) {
         nonAuthenticated.erase(serverUser);
