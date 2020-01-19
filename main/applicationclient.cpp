@@ -42,7 +42,7 @@ public:
 
         while(true) {
 
-            printf("Welcome!\nEnter <number> to proceed:\n<1> Login.\n<?> Create account.");
+            printf("Welcome!\nEnter <number> to proceed:\n<1> Login.\n<?> Create account.\nInput: ");
 
             std::string input; std::cin >> input;
             std::string dataSent;
@@ -69,9 +69,9 @@ public:
 
         std::string login, password;
 
-        printf("Please, enter your desired login: ");
+        printf("Desired login: ");
         std::cin >> login;
-        printf("Please, enter your desired password: ");
+        printf("Desired password: ");
         std::cin >> password;
 
         return "CREATE " + login + " " + password;
@@ -82,9 +82,9 @@ public:
 
         std::string login, password;
 
-        printf("Please, enter your login: ");
+        printf("Login: ");
         std::cin >> login;
-        printf("Please, enter your password: ");
+        printf("Password: ");
         std::cin >> password;
 
         return "HI " + login + " " + password;
@@ -95,7 +95,7 @@ public:
 
         /* Receive menu */
         std::string menuReceived = ReceiveData2Steps();
-        std::cout << menuReceived << std::endl;
+        std::cout << menuReceived;
 
         /* Process user input */
         std::string menuRequest = user.HandleMenu();
@@ -111,7 +111,7 @@ public:
 
         /* Receive organizer menu */
         std::string menuReceived = ReceiveData2Steps();
-        std::cout << menuReceived << std::endl;
+        std::cout << menuReceived;
 
         /* Process user input */
         std::string menuRequest = user.HandleOrganizerMenu();

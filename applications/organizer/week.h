@@ -37,14 +37,14 @@ public:
     std::string getDaySchedule(int day) {
         std::string response;
         for(int i = 0; i < days[day].size(); ++i)
-            response.append("(" + std::to_string(i) + ") " + days[day][i].refTitle() + "\n");
+            response.append("Activity <" + std::to_string(i) + ">: " + days[day][i].refTitle() + "\n");
         return response;
     }
 
     std::string getWeekSchedule() {
         std::string response;
         for (int i = 0; i < days.size(); ++i)
-            response.append("Day (" + std::to_string(i) + ")\n" + getDaySchedule(i));
+            response.append("Day <" + std::to_string(i) + ">\n" + getDaySchedule(i));
         return response;
     }
 

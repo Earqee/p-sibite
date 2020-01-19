@@ -9,7 +9,7 @@
 #include <unistd.h>
 
 /* Debugging */
-#define DEBUG 1
+#define DEBUG 0
 
 /*Common namespaces */
 #define INVALID -1

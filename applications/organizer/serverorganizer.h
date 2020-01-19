@@ -14,7 +14,7 @@ public:
 
     std::string getMenu() {
         std::string output = "Welcome\n";
-        output.append("What you want to do?\nAdd a Task [1]\nRemove a Task [2]\nEdit a Task [3]\nView a day [4]\nView a week [5]\nExit[6]\n");
+        output.append("Enter <number> to proceed:\n<1> Add task.\n<2> Remove task.\n<3> Edit task.\n<4> View day schedule.\n<5> View week schedule.\n<6> Exit organizer.\nInput: ");
         return output;
     }
 

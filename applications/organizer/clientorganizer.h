@@ -26,28 +26,30 @@ public:
     }
 
     std::string addTask() {
-        printf("digite o titulo e o dia");
-        std::string title, day;
-        std::cin >> title >> day;
+        printf("Enter <day> <title>: ");
+        std::string day, title;
+        std::cin >> day;
+        getline(std::cin, title);
         return "ADD " + day + " " + title;
     }
 
     std::string removeTask() {
-        printf("digite o dia e o indice");
+        printf("Enter <day> <index>: ");
         std::string day, index;
         std::cin >> day >> index;
         return "DEL " + day + " "+ index;
     }
 
     std::string editTask() {
-        printf("digite o dia, o indice e o titulo");
-        std::string title, day, index;
-        std::cin >> day >> index >> title;
+        printf("Enter <day> <index> <title>: ");
+        std::string day, index, title;
+        std::cin >> day >> index;
+        getline(std::cin, title);
         return "EDIT " + day + " " + index + " " + title;
     }
 
     std::string viewDay() {
-        printf("digite o dia");
+        printf("Enter <day>: ");
         std::string day;
         std::cin >> day;
         return "DAY " + day;
@@ -59,26 +61,6 @@ public:
 
     std::string quit() {
         return "QUIT";
-    }
-
-    std::string sendData() {
-        std::cout << "What you want to do?\nAdd a Task [1]\nRemove a Task [2]\nEdit a Task [3]\nView a day [4]\nView a week [5]\nExit[6]\n";
-
-        std::string response; std::cin >> response;
-        std::string formatedRequest;
-
-        if(response == "1")
-            formatedRequest = addTask();
-        else if(response == "2")
-            formatedRequest =removeTask();
-        else if(response == "3")
-            formatedRequest =editTask();
-        else if(response == "4")
-            formatedRequest =viewDay();
-        else if(response == "5")
-            formatedRequest = viewWeek();
-
-        return formatedRequest;
     }
 
 };
