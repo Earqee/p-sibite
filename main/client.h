@@ -48,29 +48,22 @@ private:
         return true;
     }
 
-    bool TransmitData(std::string &data) {
-            return socket.TransmitData(data);
-    }
-
-    bool ReceiveData(std::string &data) {
-        return socket.ReceiveData(data, defaultMaximumDataSize);
-    }
-
 public:
 
     Client() {
         MakeConnection();
+
+   
     }
 
-    void ThreadTransmitData(std::string &data) {
+    void TransmitData(std::string &data) {
         socket.TransmitData(data);
     }
 
-    std::string ThreadReceiveData() {
-        std::string dataReceived;
-        socket.ReceiveData(dataReceived, defaultMaximumDataSize);
-        return dataReceived;
+    void ReceiveData(std::string &data, int dataSize) {
+        socket.ReceiveData(data, dataSize);
     }
+
 };
 
 #endif

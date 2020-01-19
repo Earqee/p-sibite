@@ -11,12 +11,28 @@ private:
 
     std::map<std::string, std::string> database;
 
-    bool AuthenticateUser(ServerUser &serverUser) {
+    std::string ReceiveData2Steps(SocketData &socketData) {
+        std::string dataSizeReceived;
+        ReceiveData(socketData, std::ref(dataSizeReceived), dataSizeStdAmountOfDigits);
+
+        std::string dataReceived;
+        ReceiveData(socketData, std::ref(dataReceived), std::atoi(dataSizeReceived.c_str()));
+        return dataReceived;
+    }
+
+    void TransmitData2Steps(SocketData &socketData, std::string &data) {
+        std::string dataSize = std::to_string(data.size());
+        formatDataSizeString(dataSize);
+        TransmitData(socketData, std::ref(dataSize));
+
+        TransmitData(socketData, data);
+    }
+
+    bool AuthenticateUser(ServerUser &user) {
         Log log("Started authentication");
 
-        std::cout << ntohs(serverUser.refSocketData().refSocketAddress().sin6_port);
-        //std::cout << serverUser.refSocketData().refSocketFD() << std::endl;
-        std::string dataReceived = ThreadReceiveData(serverUser.refSocketData());
+        std::string dataReceived = ReceiveData2Steps(user.refSocketData());
+
         std::string word, message;
         std::stringstream stream(dataReceived);
         stream >> word;
@@ -24,39 +40,33 @@ private:
             std::string login, password;
             stream >> login >> password;
             if(database[login] == password) {
-                tracker.insertAtAtOrganizer(serverUser.refSocketData());
-                tracker.removeFromNonAuthenticated(serverUser);
+                tracker.insertAtAtOrganizer(user.refSocketData());
+                tracker.removeFromNonAuthenticated(user);
                 message = "SUCCESS";
-                ThreadTransmitData(serverUser.refSocketData(), message);
+                TransmitData2Steps(user.refSocketData(), message);
                 return true;
             }
         }
         message = "FAILURE";
-        ThreadTransmitData(serverUser.refSocketData(), message);
+        TransmitData2Steps(user.refSocketData(), message);
         return false;
     }
 
+    /*
     void ProcessOrganizerRequest(ServerUser &serverUser) {
         std::string dataReceived = ThreadReceiveData(serverUser.refSocketData());
         std::string queryStatus = serverUser.ProcessOrganizerRequest(dataReceived);
     }
 
-public:
+    */
 
+public:
 
     ApplicationServer() : Server() {
         database["abc"] = "def";
         database["abcd"] = "defg";
 
-        //std::thread (&Server::AcceptConnections,this).detach();
-        AcceptConnections();
-
-        //std::thread (&ApplicationServer::ThreadHandleAutentication, this).join();
-        //ThreadHandleAutentication();
-
-        for(SocketData client : clientsData) {
-            std::string dataReceived = ThreadReceiveData(client);
-        }
+        ThreadHandleAutentication();
     }
 
     /* Fix later */
@@ -65,43 +75,22 @@ public:
         Log log("Starting listening non authenticated");
         std::set<int> socketsInQueue;
 
+        std::cout << tracker.refNonAuthenticated().size();
+
          while(true) {
-             for(ServerUser serverUser : tracker.refNonAuthenticated()) {
-                 if(!socketsInQueue.count(serverUser.refSocketData().refSocketFD()))  {
-                     socketsInQueue.insert(serverUser.refSocketData().refSocketFD());
 
+             for(ServerUser user : tracker.refNonAuthenticated()) {
 
-
-                    std::thread (&ApplicationServer::AuthenticateUser, this,
-                        std::ref(serverUser)).join();
+                 if(!socketsInQueue.count(user.refSocketData().refSocketFD()))  {
+                     socketsInQueue.insert(user.refSocketData().refSocketFD());
+                     AuthenticateUser(user);
                     break;
                  }
              }
+             break;
         }
     }
 
-
-    void ThreadHandleOrganizer() {
-
-        std::set<int> socketsInQueue;
-
-        while(true) {
-
-             for(ServerUser serverUser : tracker.refAtOrganizer()) {
-
-                 if(!socketsInQueue.count(serverUser.refSocketData().refSocketFD()))  {
-
-                     socketsInQueue.insert(serverUser.refSocketData().refSocketFD());
-
-                    std::thread authenticateUser(&ApplicationServer::AuthenticateUser, this,
-                         std::ref(serverUser));
-                    authenticateUser.join();
-                    break;
-                 }
-             }
-        }
-            //for(User user : usersAtOrganizer) {
-    }
 
 };
 

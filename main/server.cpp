@@ -14,7 +14,6 @@ protected:
 
     int connectionStatus = INVALID;
     ServerSocket serverSocket = ServerSocket(PORT);
-    std::vector<SocketData> clientsData;
     Tracker tracker;
 
 public:
@@ -66,17 +65,9 @@ public:
             }
 
             printf("New connection at %d.\n", ntohs(clientData.refSocketAddress().sin6_port));
-            clientsData.push_back(clientData);
+            tracker.insertAtNonAuthenticated(clientData);
         //}
         return true;
-    }
-
-    bool TransmitData(SocketData &clientData, std::string &data) {
-        return serverSocket.TransmitData(clientData, data);
-    }
-
-    bool ReceiveData(SocketData &clientData, std::string &data) {
-        return serverSocket.ReceiveData(clientData, data, defaultMaximumDataSize);
     }
 
 public:
@@ -92,8 +83,8 @@ public:
                 std::string dataSize = std::to_string(data.size());
                 formatDataSizeString(dataSize);
 
-                ThreadTransmitData(client, dataSize);
-                ThreadTransmitData(client, data);
+                TransmitData(client, dataSize);
+                TransmitData(client, data);
             }
             break;
 
@@ -101,14 +92,12 @@ public:
 
     }
 
-    void ThreadTransmitData(SocketData &clientData, std::string &data) {
+    void TransmitData(SocketData &clientData, std::string &data) {
         serverSocket.TransmitData(clientData, data);
     }
 
-    std::string ThreadReceiveData(SocketData &clientData, int dataSize) {
-        std::string dataReceived;
-        serverSocket.ReceiveData(dataReceived, dataSize);
-        return dataReceived;
+    void ReceiveData(SocketData &clientData, std::string &data, int dataSize) {
+        serverSocket.ReceiveData(clientData, data, dataSize);
     }
 
 };

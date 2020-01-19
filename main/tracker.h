@@ -16,13 +16,16 @@ public:
         nonAuthenticated.insert(ServerUser(nextNonAuthenticatedID++, socketData));
     }
 
+    void insertAtAtOrganizer(SocketData &socketData) {
+        atOrganizer.insert(ServerUser(nextNonAuthenticatedID++, socketData));
+    }
+
+    //
+
     void removeFromNonAuthenticated(ServerUser &serverUser) {
         nonAuthenticated.erase(serverUser);
     }
 
-    void insertAtAtOrganizer(SocketData &socketData) {
-        atOrganizer.insert(ServerUser(nextNonAuthenticatedID++, socketData));
-    }
 
     void removeFromAtAtOrganizer(ServerUser &serverUser) {
         atOrganizer.erase(serverUser);
