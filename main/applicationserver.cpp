@@ -1,9 +1,5 @@
 #include "../util/header.h"
 #include "../util/log.h"
-#include "../socket/socketdata.h"
-#include "../socket/serversocket.h"
-#include "../socket/socketinfo.h"
-#include "../socket/dummysocket.h"
 #include "../main/server.h"
 
 class ApplicationServer : public Server {
@@ -28,46 +24,82 @@ private:
         TransmitData(socketData, data);
     }
 
-    bool AuthenticateUser(ServerUser &user) {
+    void AuthenticateUser(ServerUser &user) {
         Log log("Started authentication");
 
-        std::string dataReceived = ReceiveData2Steps(user.refSocketData());
+        while(true) {
+            /* Receive "HI <login> <password>" from client */
+            std::string dataReceived = ReceiveData2Steps(user.refSocketData());
 
-        std::string word, message;
-        std::stringstream stream(dataReceived);
-        stream >> word;
-        if(word == "HI") {
-            std::string login, password;
-            stream >> login >> password;
-            if(database[login] == password) {
-                tracker.insertAtAtOrganizer(user.refSocketData());
-                tracker.removeFromNonAuthenticated(user);
-                message = "SUCCESS";
-                user.refLocation() = AT_MENU;
-                TransmitData2Steps(user.refSocketData(), message);
-                return true;
+            /* Process received data */
+            std::string word, message;
+            std::stringstream stream(dataReceived);
+            stream >> word;
+            if(word == "HI") {
+                std::string login, password;
+                stream >> login >> password;
+                if(database[login] == password) {
+                    //tracker.insertAtAtOrganizer(user.refSocketData());
+                    //tracker.removeFromNonAuthenticated(user);
+                    message = "SUCCESS";
+                    user.refLocation() = AT_MENU;
+                    TransmitData2Steps(user.refSocketData(), message);
+                    return;
+                }
             }
+            message = "FAILURE";
+            TransmitData2Steps(user.refSocketData(), message);
         }
-        message = "FAILURE";
-        TransmitData2Steps(user.refSocketData(), message);
-        return false;
     }
 
     void HandleUserInMenu(ServerUser &user) {
-        std::string message = user.getOrganizerMenu();
-        TransmitData2Steps(user.refSocketData(), message);
+        Log log("Handle user at menu.");
+
+        /* Sent menu to client */
+        std::string dataSent = user.getMenu();
+        TransmitData2Steps(user.refSocketData(), dataSent);
+
+        /* Receive client input from menu options*/
+        std::string dataReceived = ReceiveData2Steps(user.refSocketData());
+        std::cout << dataReceived << std::endl;
+
+        /* Make changes in user location */
+        if(dataReceived == "ORGANIZER")
+            user.refLocation() = AT_ORGANIZER;
+        if(dataReceived == "TORRENT")
+            user.refLocation() = AT_TORRENT;
+        if(dataReceived == "QUIT")
+            user.refLocation() = NOT_AUTH;
     }
 
-    void ProcessOrganizerRequest(ServerUser &serverUser) {
-        std::string dataReceived = ReceiveData2Steps(serverUser.refSocketData());
-        //std::string queryStatus = serverUser.ProcessOrganizerRequest(dataReceived);
+    void HandleUserAtOrganizer(ServerUser &user) {
+        Log log("Handle user at organizer.");
+
+        while(true) {
+            /* Send organizer menu to client */
+            std::string dataSent = user.getOrganizerMenu();
+            TransmitData2Steps(user.refSocketData(), dataSent);
+
+            /* Receive client input from menu options */
+            std::string dataReceived = ReceiveData2Steps(user.refSocketData());
+            std::cout << dataReceived << std::endl;
+            if(dataReceived == "QUIT") {
+                user.refLocation() = AT_MENU;
+                return;
+            }
+
+            /* Make changes in databse */
+            std::string requestStatus = user.ProcessOrganizerRequest(dataReceived);
+            std::cout << requestStatus << std::endl;
+            TransmitData2Steps(user.refSocketData(), requestStatus);
+        }
     }
 
 public:
 
     ApplicationServer() : Server() {
         database["abc"] = "def";
-        database["abcd"] = "defg";
+        database["abcd"] = "efgh";
 
         HandleUserRequest();
     }
@@ -92,19 +124,16 @@ public:
                          AuthenticateUser(user);
                      if(user.refLocation() == AT_MENU)
                          HandleUserInMenu(user);
-                     //if(user.refLocation() == AT_ORGANIZER)
-                         //ProcessOrganizerRequest(user);
+                     if(user.refLocation() == AT_ORGANIZER)
+                         HandleUserAtOrganizer(user);
 
                      processInQueue.erase(userRequestID);
                  }
-
              }
 
              std::this_thread::sleep_for(std::chrono::seconds(5));
          }
      }
-
-
 };
 
 int main() {

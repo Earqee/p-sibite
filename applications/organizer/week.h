@@ -1,7 +1,5 @@
 #include "../../util/header.h"
-//#include "../../util/log.h"
-//#include "../../main/client.h"
-//#include "../../main/server.h"
+#include "../../util/log.h"
 #include "../../applications/organizer/task.h"
 
 class Week {
@@ -10,7 +8,9 @@ protected:
     std::vector< std::vector<Task> > days;
 
 public:
-    Week(){ }
+    Week(){
+        days.resize(7);
+    }
 
     bool addTask(std::string &title, int day) {
     	if(days.size() <= day)
@@ -31,6 +31,7 @@ public:
     	if(days.size() <= day || days[day].size() <= index)
     		return false;
         days[day][index].title = title;
+        return true;
     }
 
     std::string getDaySchedule(int day) {

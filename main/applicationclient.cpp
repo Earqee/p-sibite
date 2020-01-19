@@ -2,15 +2,22 @@
 #include "../util/header.h"
 #include "../util/log.h"
 #include "../main/client.h"
+#include "../applications/clientuser.h"
 
 class ApplicationClient : public Client {
 
 private:
+    ClientUser user;
 
 public:
     ApplicationClient() : Client() {
-        if(AuthenticateUser())
-            AskMenu();
+        while(AuthenticateUser()) {
+
+            std::string application = HandleUserAtMenu();
+
+            if(application == "ORGANIZER")
+                while(HandleUserAtOrganizer());
+        }
     }
 
     std::string ReceiveData2Steps() {
@@ -34,24 +41,58 @@ public:
         Log log("Authentication began.");
 
         std::string login, password;
+
         printf("Please, enter your login: ");
         std::cin >> login;
+
         printf("Please, enter your password: ");
         std::cin >> password;
-        std::string formattedRequest = "HI " + login + " " + password;
 
+        std::string formattedRequest = "HI " + login + " " + password;
         TransmitData2Steps(formattedRequest);
+
         std::string response = ReceiveData2Steps();
         if(response == "SUCCESS")
             return true;
+
         return false;
     }
 
-    bool AskMenu() {
-        Log log("Asking menu.");
-        std::string response = ReceiveData2Steps();
-        std::cout << response << std::endl;
+    std::string HandleUserAtMenu() {
+        Log log("Handling user at menu.");
 
+        /* Receive menu */
+        std::string dataReceived = ReceiveData2Steps();
+        std::cout << dataReceived << std::endl;
+
+        /* Process user input */
+        std::string menuRequest = user.HandleMenu();
+        std::cout << menuRequest << std::endl;
+
+        /*Transmit request to server */
+        TransmitData2Steps(menuRequest);
+        return menuRequest;
+    }
+
+    bool HandleUserAtOrganizer() {
+        Log log("Handling user at organizer menu.");
+
+        /* Receive organizer menu */
+        std::string dataReceived = ReceiveData2Steps();
+        std::cout << dataReceived << std::endl;
+
+        /* Process user input */
+        std::string menuRequest = user.HandleOrganizerMenu();
+        std::cout << menuRequest << std::endl;
+
+        /*Transmit request to server */
+        TransmitData2Steps(menuRequest);
+        if(menuRequest == "QUIT")
+            return false;
+
+        /* Receive solicitation */
+        std::string requestReceived = ReceiveData2Steps();
+        std::cout << requestReceived << std::endl;
         return true;
     }
 

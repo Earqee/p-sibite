@@ -22,7 +22,6 @@ public:
         return ID;
     }
 
-
     int& refID() {
         return ID;
     }
@@ -33,6 +32,10 @@ public:
 
     SocketData& refSocketData() {
         return socketData;
+    }
+
+    std::string getMenu() {
+        return "Welcome!\n Enter <number> to proceed: <1> Organizer <2> Torrent\n";
     }
 
     std::string getOrganizerMenu() {

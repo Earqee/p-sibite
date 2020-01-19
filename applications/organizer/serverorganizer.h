@@ -29,14 +29,14 @@ public:
             stream >> day;
             getline(stream, title);
             if(week.addTask(title, day))
-                return "SUCCESS ADD";
+                return "SUCCESS";
         }
 
         if(word == "DEL") {
             int day, index;
             stream >> day >> index;
             if(week.removeTask(day, index))
-                return "SUCCESS DEL";
+                return "SUCCESS";
         }
 
         if(word == "EDIT") {
@@ -44,7 +44,7 @@ public:
             stream >> day >> index;
             getline(stream, title);
             if(week.editTask(day, index, title))
-                return "SUCCESS EDIT";
+                return "SUCCESS";
         }
 
         if(word == "DAY") {

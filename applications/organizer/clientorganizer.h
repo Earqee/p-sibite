@@ -3,17 +3,26 @@
 
 #include "../../util/header.h"
 #include "../../util/log.h"
-#include "../../main/client.h"
-#include "../../main/server.h"
 
-class ClientOrganizer
-{
+class ClientOrganizer {
 public:
 
     ClientOrganizer(){}
 
     std::string askMenu() {
         return "MENU";
+    }
+
+    std::string HandleMenu() {
+
+        std::string input; std::cin >> input;
+
+        if(input == "1") return addTask();
+        if(input == "2") return removeTask();
+        if(input == "3") return editTask();
+        if(input == "4") return viewDay();
+        if(input == "5") return viewWeek();
+        return quit();
     }
 
     std::string addTask() {
@@ -48,8 +57,8 @@ public:
         return "WEEK";
     }
 
-    std::string exit() {
-        return "EXIT";
+    std::string quit() {
+        return "QUIT";
     }
 
     std::string sendData() {
@@ -68,7 +77,7 @@ public:
             formatedRequest =viewDay();
         else if(response == "5")
             formatedRequest = viewWeek();
-            
+
         return formatedRequest;
     }
 
