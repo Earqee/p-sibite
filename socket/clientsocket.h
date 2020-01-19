@@ -17,8 +17,10 @@ private:
             return false;
         }
 
-        in6_addr ipv6ServerAddress;
-        /* always connects to ICVPN server */
+        in6_addr ipv6ServerAddress = in6addr_loopback;
+
+        /* Always connects to Server */
+        /*
         int conversionStatus = inet_pton(AF_INET6, "::1", &ipv6ServerAddress);
 
         if(conversionStatus == INVALID) {
@@ -27,6 +29,7 @@ private:
                 log.logError("Valid network address not provided.");
             return false;
         }
+        */
 
         socketData.configSocketAddress(AF_INET6, ipv6ServerAddress, htons(port));
 
