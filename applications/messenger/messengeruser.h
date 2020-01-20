@@ -7,30 +7,32 @@
 class MessengerUser {
 
 private:
-    int id;
+    int ID;
     std::string login;
     std::unordered_map<int, std::vector<std::string> > messages;
 
 public:
-    MessengerUser(int &id, std::string &login) {
-        this->id = id;
+    MessengerUser() {}
+
+    MessengerUser(int &ID, std::string &login) {
+        this->ID = ID;
         this->login = login;
     }
 
     int& refID() {
-        return id;
+        return this->ID;
     }
 
     std::string& refLogin() {
-        return login;
+        return this->login;
     }
 
-    std::vector<std::string> getMessagesFrom(int &id) {
-        return messages[id];
+    std::vector<std::string> getMessagesFrom(int &ID) {
+        return this->messages[ID];
     }
 
-    void insertMessageFrom(int &id, std::string &message) {
-        messages[id].push_back(message);
+    void insertMessageFrom(int &ID, std::string &message) {
+        this->messages[ID].push_back(message);
     }
 
 };

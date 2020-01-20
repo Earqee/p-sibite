@@ -10,7 +10,10 @@
 class ServerUser {
 
 private:
-    int ID, location, status;
+    int ID,
+        location = NOT_AUTH,
+        status = CONNECTED;
+    std::string login = "";
     SocketData socketData;
     ServerOrganizer serverOrganizer;
     ServerMessenger serverMessenger;
@@ -24,32 +27,33 @@ public:
         this->serverOrganizer = serverUser.serverOrganizer;
     }
 
-    ServerUser(int ID, int location, int status,
-            SocketData &socketData) {
+    ServerUser(int ID, SocketData &socketData) {
         this->ID = ID;
-        this->location = location;
-        this->status = status;
         this->socketData = socketData;
     }
 
     int getID() {
-        return ID;
+        return this->ID;
     }
 
     int& refID() {
-        return ID;
+        return this->ID;
+    }
+
+    std::string& refLogin() {
+        return this->login;
     }
 
     int& refLocation() {
-        return location;
+        return this->location;
     }
 
     int& refStatus() {
-        return status;
+        return this->status;
     }
 
     SocketData& refSocketData() {
-        return socketData;
+        return this->socketData;
     }
 
     std::string getMenu() {
@@ -68,8 +72,8 @@ public:
         return serverOrganizer.ProcessRequest(request);
     }
 
-    std::string ProcessMessengerRequest(int &userId, std::string &request) {
-        return serverMessenger.ProcessRequest(userId, request);
+    std::string ProcessMessengerRequest(int &userId, std::string &userLogin, std::string &request) {
+        return serverMessenger.ProcessRequest(userId, userLogin, request);
     }
 
     bool operator<(const ServerUser &serverUser) const {

@@ -99,6 +99,7 @@ protected:
             stream >> login >> password;
             if(database[login] == password) {
                 message = "SUCCESS";
+                user.refLogin() = login;
                 user.refLocation() = AT_MENU;
                 TransmitData2Steps(user, message);
             } else {
@@ -153,7 +154,6 @@ protected:
 
         while(true) {
 
-            /* Critical: check if user still connected */
             if(user.refStatus() == DISCONNECTED)
                 return;
 
@@ -196,7 +196,7 @@ protected:
             }
 
             /* Make changes in database */
-            std::string requestStatus = user.ProcessMessengerRequest(user.refID(), dataReceived);
+            std::string requestStatus = user.ProcessMessengerRequest(user.refID(), user.refLogin(), dataReceived);
             TransmitData2Steps(user, requestStatus);
         }
     }

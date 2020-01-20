@@ -16,52 +16,53 @@ public:
         return "\nEnter <number>:\n<1> Listen messages.\n<2> List available users.\n<3> List messages from specific user.\n<4> Send message to specific user.\n";
     }
 
-    std::string ProcessRequest(int &userId, std::string &request) {
+    std::string ProcessRequest(int &userID, std::string &userLogin, std::string &request) {
 
         std::string word;
         std::stringstream stream(request);
         stream >> word;
 
         if(word == "ENROLL") {
-
+            userList[userID] = MessengerUser(userID, userLogin);
+            return "Success enrolling.";
         }
 
         if(word == "USERS") {
             std::string response;
             for(auto element : userList) {
                 MessengerUser &user = element.second;
-                response.append(
-                        "ID <"+ std::to_string(user.refID())+"> : "+
-                        user.refLogin());
+                response.append("| User login <"+ user.refLogin()+"> id <"+std::to_string(user.refID())+"> available.");
             }
             return response;
         }
 
         if(word == "FROM") {
-            int destId;
-            stream >> destId;
-            if(userList.count(userId)) {
+            int destID;
+            stream >> destID;
+            if(userList.count(userID)) {
                  std::vector<std::string>
-                    messages = userList[userId].getMessagesFrom(destId);
+                    messages = userList[userID].getMessagesFrom(destID);
                  std::string response;
                  for(std::string message : messages)
-                    response.append(message+"\n");
+                     response.append("| User login <"+userList[destID].refLogin()+"> id <" +
+                            std::to_string(destID) +"> sent :"
+                            + message+"\n");
                  return response;
             }
         }
 
         if(word == "SEND") {
-            int otherId;
+            int destID;
             std::string message;
-            stream >> otherId;
+            stream >> destID;
             getline(stream, message);
-            if(userList.count(userId)) {
-                userList[userId].insertMessageFrom(otherId, message);
-                return "SUCCESS";
+            if(userList.count(userID)) {
+                userList[userID].insertMessageFrom(destID, message);
+                return "Success sending.";
             }
         }
 
-        return "ERROR";
+        return "Error. Have you entered a valid input?";
     }
 
 };

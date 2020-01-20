@@ -31,14 +31,14 @@ public:
             stream >> day;
             getline(stream, title);
             if(week.addTask(title, day))
-                return "SUCCESS";
+                return "Success adding.";
         }
 
         if(word == "DEL") {
             int day, index;
             stream >> day >> index;
             if(week.removeTask(day, index))
-                return "SUCCESS";
+                return "Success deleting.";
         }
 
         if(word == "EDIT") {
@@ -46,7 +46,7 @@ public:
             stream >> day >> index;
             getline(stream, title);
             if(week.editTask(day, index, title))
-                return "SUCCESS";
+                return "Success editing.";
         }
 
         if(word == "DAY") {
@@ -57,7 +57,7 @@ public:
         if(word == "WEEK")
             return week.getWeekSchedule();
 
-        return "ERROR";
+        return "Error. Have you entered a valid input?";
     }
 };
 

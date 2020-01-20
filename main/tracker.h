@@ -7,17 +7,20 @@
 class Tracker {
 
 private:
-    int nextNonAuthenticatedID = 0, nextAtOrganizedID = 0;
+    int nextNonAuthenticatedID = 0,
+        nextAtOrganizedID = 0,
+        nextAtMessenger = 0;
     std::deque<ServerUser> nonAuthenticated;
     std::deque<ServerUser> atOrganizer;
+    std::deque<ServerUser> atMessenger;
 public:
 
     void insertAtNonAuthenticated(SocketData &socketData) {
-        nonAuthenticated.push_back(ServerUser(nextNonAuthenticatedID++, NOT_AUTH, CONNECTED, socketData));
+        nonAuthenticated.push_back(ServerUser(nextNonAuthenticatedID++, socketData));
     }
 
     void insertAtAtOrganizer(SocketData &socketData) {
-        atOrganizer.push_back(ServerUser(nextNonAuthenticatedID++, NOT_AUTH, CONNECTED, socketData));
+        atOrganizer.push_back(ServerUser(nextNonAuthenticatedID++, socketData));
     }
 
     std::deque<ServerUser>& refNonAuthenticated() {
@@ -28,12 +31,20 @@ public:
         return atOrganizer;
     }
 
+    std::deque<ServerUser>& refAtMessenger() {
+        return atMessenger;
+    }
+
     int countNonAuthenticated() {
         return nonAuthenticated.size();
     }
 
     int countAtOrganizer() {
         return atOrganizer.size();
+    }
+
+    int countAtMessenger() {
+        return atMessenger.size();
     }
 
 };

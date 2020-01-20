@@ -132,6 +132,10 @@ protected:
 
         /* Process user input */
         std::string menuRequest = user.HandleMessengerMenu();
+        /*Transmit request to server */
+        TransmitData2Steps(menuRequest);
+        if(menuRequest == "QUIT")
+            return false;
 
         /* Receive solicitation */
         std::string requestReceived = ReceiveData2Steps();
