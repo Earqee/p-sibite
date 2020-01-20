@@ -6,7 +6,6 @@
 #include "../socket/socketdata.h"
 #include "../socket/serversocket.h"
 #include "../socket/socketinfo.h"
-#include "../socket/dummysocket.h"
 #include "../applications/serveruser.h"
 #include "../main/tracker.h"
 
@@ -15,7 +14,7 @@ class Server {
 protected:
 
     int connectionStatus = INVALID;
-    ServerSocket serverSocket = ServerSocket(PORT);
+    ServerSocket *socket;
     Tracker tracker;
 
 public:
@@ -23,7 +22,7 @@ public:
     bool ListenConnection() {
         Log log("Listening connections.");
 
-        connectionStatus = listen(serverSocket.refSocketFD(), maxNumOfConnections);
+        connectionStatus = listen(socket->refSocketFD(), maxNumOfConnections);
 
         if(connectionStatus == INVALID) {
             log.logCannot();
@@ -50,7 +49,7 @@ public:
 
             while(clientData.refSocketFD() == INVALID) {
 
-                clientData.refSocketFD() = accept(serverSocket.refSocketFD(), (sockaddr*) &clientData.refSocketAddress(), &clientData.refSocketAddressLen());
+                clientData.refSocketFD() = accept(socket->refSocketFD(), (sockaddr*) &clientData.refSocketAddress(), &clientData.refSocketAddressLen());
 
                 if(clientData.refSocketFD() == INVALID) {
                     log.logCannot();
@@ -73,19 +72,25 @@ public:
     }
 
 public:
-    Server() {
+    Server(int &port) {
+        socket = new ServerSocket(port);
+
         ListenConnection();
 
         std::thread (&Server::AcceptConnections, this).detach();
 
     }
 
+    ~Server() {
+        delete[] socket;
+    }
+
     bool TransmitData(SocketData &clientData, std::string &data) {
-        return serverSocket.TransmitData(clientData, data);
+        return socket->TransmitData(clientData, data);
     }
 
     bool ReceiveData(SocketData &clientData, std::string &data, int dataSize) {
-        return serverSocket.ReceiveData(clientData, data, dataSize);
+        return socket->ReceiveData(clientData, data, dataSize);
     }
 
 };

@@ -16,7 +16,6 @@
 #define CHAR_SIZE 8
 
 /* Server related */
-#define PORT 7002
 #define maxNumOfConnections 64
 #define dataSizeStdAmountOfDigits 5
 #define defaultMaximumDataSize 256

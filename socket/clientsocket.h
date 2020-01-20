@@ -9,7 +9,7 @@ class ClientSocket : public Socket {
 
 private:
 
-    bool CreateSocketAddress(int port) override {
+    bool CreateSocketAddress(char *serverIpv6Address, int &port) {
         Log log("Creating of socket address.");
 
         if(socketData.refSocketFD() == INVALID) {
@@ -17,11 +17,9 @@ private:
             return false;
         }
 
-        in6_addr ipv6ServerAddress = in6addr_loopback;
+        in6_addr ipv6ServerAddress;
 
-        /* Always connects to Server */
-        /*
-        int conversionStatus = inet_pton(AF_INET6, "::1", &ipv6ServerAddress);
+        int conversionStatus = inet_pton(AF_INET6, serverIpv6Address, &ipv6ServerAddress);
 
         if(conversionStatus == INVALID) {
             log.logCannot();
@@ -29,20 +27,17 @@ private:
                 log.logError("Valid network address not provided.");
             return false;
         }
-        */
 
         socketData.configSocketAddress(AF_INET6, ipv6ServerAddress, htons(port));
-
         return true;
     }
 
 public:
 
-    ClientSocket(int port) : Socket(port) {
+    ClientSocket(char *serverIpv6Address, int &port) : Socket(port) {
         CreateSocket();
-        CreateSocketAddress(port);
+        CreateSocketAddress(serverIpv6Address, port);
     }
-
 };
 
 #endif

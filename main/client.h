@@ -5,19 +5,18 @@
 #include "../util/log.h"
 #include "../socket/socketdata.h"
 #include "../socket/clientsocket.h"
-#include "../socket/dummysocket.h"
 
 class Client {
 
 private:
     int connectionStatus = INVALID;
-    ClientSocket socket = ClientSocket(PORT);
+    ClientSocket *socket;
 
     bool MakeConnection() {
         Log log("Making connection");
 
-        connectionStatus = connect(socket.refSocketFD(),
-                (sockaddr*) &socket.refSocketAddress(), socket.refSocketAddressLen());
+        connectionStatus = connect(socket->refSocketFD(),
+                (sockaddr*) &socket->refSocketAddress(), socket->refSocketAddressLen());
 
         if(connectionStatus == INVALID) {
             log.logCannot();
@@ -50,18 +49,21 @@ private:
 
 public:
 
-    Client() {
+    Client(char *serverIpv6Address, int &port) {
+        socket = new ClientSocket(serverIpv6Address, port);
         MakeConnection();
+    }
 
-   
+    ~Client() {
+        delete[] socket;
     }
 
     void TransmitData(std::string &data) {
-        socket.TransmitData(data);
+        this->socket->TransmitData(data);
     }
 
     void ReceiveData(std::string &data, int dataSize) {
-        socket.ReceiveData(data, dataSize);
+        this->socket->ReceiveData(data, dataSize);
     }
 
 };

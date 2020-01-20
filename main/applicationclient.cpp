@@ -150,7 +150,8 @@ protected:
 
 public:
 
-    ApplicationClient() : Client() {
+    ApplicationClient(char *serverIpv6Address, int &port)
+        : Client(serverIpv6Address, port) {
 
         while(AuthenticateUser()) {
 
@@ -164,7 +165,10 @@ public:
     }
 };
 
-int main() {
-    ApplicationClient applicationClient;
+int main(int argc, char **argv) {
+    char *serverIpv6Address = argv[1];
+    int port = std::atoi(argv[argc-1]);
+    ApplicationClient applicationClient(serverIpv6Address, port);
+    free(serverIpv6Address);
     return 0;
 }

@@ -209,12 +209,13 @@ protected:
 
 public:
 
-    ApplicationServer() : Server() {
+    ApplicationServer(int &port) : Server(port) {
         HandleUserRequest();
     }
 };
 
-int main() {
-    ApplicationServer applicationServer;
+int main(int argc, char **argv) {
+    int port = std::atoi(argv[1]);
+    ApplicationServer applicationServer(port);
     return 0;
 }

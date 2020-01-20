@@ -9,7 +9,7 @@ class ServerSocket : public Socket {
 
 private:
 
-    bool CreateSocketAddress(int port) override {
+    bool CreateSocketAddress(int port) {
         Log log("Creating of socket address.");
 
         if(socketData.refSocketFD() == INVALID) {

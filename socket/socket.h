@@ -14,7 +14,6 @@ protected:
     bool CreateSocket() {
         Log log("Opening of socket");
 
-        /* socketData.socketFD = socket(AF_INET6, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0); */
         socketData.refSocketFD() = socket(defaultFamily, defaultSocketType, defaultProtocol);
 
         if(socketData.refSocketFD() == INVALID) {
@@ -40,7 +39,10 @@ protected:
         return true;
     }
 
-    virtual bool CreateSocketAddress(int port) = 0;
+    bool CreateSocketAddress(int port) {
+        Log log("Creating socket address.");
+        return false;
+    }
 
 private:
 
@@ -71,8 +73,8 @@ private:
 
 public:
     /* Construction and destruction */
-    Socket(int port) {
-        Log log("Creation of socket '"+std::to_string(port)+"'");
+    Socket(int &port) {
+        Log log("Creation of socket '" + std::to_string(port) + "'.");
     }
 
     ~Socket() {
