@@ -42,13 +42,13 @@ void formatDataSizeString(std::string &data) {
         data.insert(data.begin(), '0');
 }
 
+/* Simple xor encription-decryption */
 std::string Cripto(std::string &data) {
-    char xorKey = 'P';
+    char xorKey = 'X';
     std::string xorData(data);
     if(!DEBUG)
-    for(int i=0; i<xorData.size(); i++)
-        xorData[i]^=xorKey;
-    std::cout << xorData << std::endl;
+        for(int i=0; i<xorData.size(); i++)
+            xorData[i]^=xorKey;
     return xorData;
 }
 
