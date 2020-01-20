@@ -32,9 +32,24 @@ Project Bird is an alternative to common aplications of modern world. As exposed
     
     > *Future plans*:
 
-## Security 
-
 ## Protocols
+
+| Description | (firstly) Client sends | (secondly) Server response |
+| --- | --- | --- | 
+| Add task to day | `ADD <day> <title>` | `SUCCESS` | 
+| Delete i-th task from day | `DEL <day> <index>` | `SUCCESS` | 
+| Edit i-th day from day to title | `EDIT <day> <index> <title>` | `SUCCESS` | 
+| Get all tasks of day | `DAY <day>` | formated sequence of `<title>` | 
+| Get all tasks of week | `WEEK` | formated sequence of `<day> <title>` | 
+| Quit organizer menu | `QUIT` | *no response* | 
+
+| Description | (firstly) Client sends | (secondly) Server response |
+| --- | --- | --- | 
+| Set yourself available to chat |  `ENROLL` | `SUCCESS` | 
+| Get users available to chat | `USERS` | formatted sequence of `<login> <id>` | 
+| Get messages from user with given id | `FROM <id>` | formated sequence of `<message>` | 
+| Send message to user with given id | `SEND <id> <message>` | `SUCCESS` | 
+| Quit messenger menu | `QUIT` | *no response* | 
 
 ## Setup
 
@@ -50,7 +65,7 @@ Now, not necessarily on the same computer, go to this same repository and begin 
 
     ./client <server ipv6 address>
 
-For example, **"./client ::1"** and **"./client 2804:14d:1283:8e7c:a947:38d6:f03d:9e48"** are valid inputs.
+For example, `./client ::`and `./client 2804:14d:1283:8e7c:a947:38d6:f03d:9e48` are valid inputs.
 
 #### Compiling
 
