@@ -1,4 +1,5 @@
-# 
+
+![Test Image 6](images/logo.jpg)
 
 ## About the application
 
