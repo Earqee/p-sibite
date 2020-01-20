@@ -4,11 +4,13 @@
 #include "../util/header.h"
 #include "../util/log.h"
 #include "../applications/organizer/clientorganizer.h"
+#include "../applications/messenger/clientmessenger.h"
 
 class ClientUser {
 private:
 
     ClientOrganizer clientOrganizer;
+    ClientMessenger clientMessenger;
 public:
 
     ClientUser() {}
@@ -17,12 +19,16 @@ public:
         std::string input;
         std::cin >> input;
         if(input == "1") return "ORGANIZER";
-        if(input == "2") return "TORRENT";
+        if(input == "2") return "MESSENGER";
         return "QUIT";
     }
 
     std::string HandleOrganizerMenu() {
         return clientOrganizer.HandleMenu();
+    }
+
+    std::string HandleMessengerMenu() {
+        return clientMessenger.HandleMenu();
     }
 };
 

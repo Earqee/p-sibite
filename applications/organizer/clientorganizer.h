@@ -15,7 +15,8 @@ public:
 
     std::string HandleMenu() {
 
-        std::string input; std::cin >> input;
+        std::string input;
+        std::cin >> input;
 
         if(input == "1") return addTask();
         if(input == "2") return removeTask();

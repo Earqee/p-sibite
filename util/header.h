@@ -25,7 +25,7 @@
 #define NOT_AUTH -1
 #define AT_MENU 0
 #define AT_ORGANIZER 1
-#define AT_TORRENT 2
+#define AT_MESSENGER 2
 
 /* ServerUser STATUS*/
 #define CONNECTED 0

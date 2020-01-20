@@ -6,17 +6,15 @@
 class ApplicationClient : public Client {
 
 private:
+
     ClientUser user;
 
-public:
-    ApplicationClient() : Client() {
-        while(AuthenticateUser()) {
+    void TransmitData2Steps(std::string &data) {
+        std::string dataSize = std::to_string(data.size());
+        formatDataSizeString(dataSize);
 
-            std::string application = HandleUserAtMenu();
-
-            if(application == "ORGANIZER")
-                while(HandleUserAtOrganizer());
-        }
+        TransmitData(dataSize);
+        TransmitData(data);
     }
 
     std::string ReceiveData2Steps() {
@@ -28,22 +26,47 @@ public:
         return dataReceived;
     }
 
-    void TransmitData2Steps(std::string &data) {
-        std::string dataSize = std::to_string(data.size());
-        formatDataSizeString(dataSize);
-
-        TransmitData(dataSize);
-        TransmitData(data);
-    }
+protected:
 
     bool AuthenticateUser() {
         Log log("Authentication began.");
 
+        auto CreateUser = []() {
+            Log log("Started creating user.");
+
+            std::string login, password;
+
+            std::cout << "Desired login: ";
+            std::cin >> login;
+            std::cout << "Desired password: ";
+            std::cin >> password;
+
+            return "CREATE " + login + " " + password;
+        };
+
+        auto LoginUser = []() {
+            Log log("Started user login.");
+
+            std::string login, password;
+
+            std::cout << "Login: ";
+            std::cin >> login;
+            std::cout << "Password: ";
+            std::cin >> password;
+
+            return "HI " + login + " " + password;
+        };
+
         while(true) {
 
-            printf("Welcome!\nEnter <number> to proceed:\n<1> Login.\n<?> Create account.\nInput: ");
+            std::cout <<
+            "\nWelcome to Project Bird!\n"
+            "Enter <number> to proceed:\n"
+            "<1> Login.\n<?> Create account.\n"
+            "Input: ";
 
-            std::string input; std::cin >> input;
+            std::string input;
+            std::cin >> input;
             std::string dataSent;
             if(input == "1") {
                 dataSent = LoginUser();
@@ -61,32 +84,6 @@ public:
             }
             return false;
         }
-    }
-
-    std::string CreateUser() {
-        Log log("Started creating user.");
-
-        std::string login, password;
-
-        printf("Desired login: ");
-        std::cin >> login;
-        printf("Desired password: ");
-        std::cin >> password;
-
-        return "CREATE " + login + " " + password;
-    }
-
-    std::string LoginUser() {
-        Log log("Started user login.");
-
-        std::string login, password;
-
-        printf("Login: ");
-        std::cin >> login;
-        printf("Password: ");
-        std::cin >> password;
-
-        return "HI " + login + " " + password;
     }
 
     std::string HandleUserAtMenu() {
@@ -114,7 +111,6 @@ public:
 
         /* Process user input */
         std::string menuRequest = user.HandleOrganizerMenu();
-        //std::cout << menuRequest << std::endl;
 
         /*Transmit request to server */
         TransmitData2Steps(menuRequest);
@@ -127,6 +123,36 @@ public:
         return true;
     }
 
+    bool HandleUserAtMessenger() {
+        Log log("Handling user at messenger menu.");
+
+        /* Receive messenger menu */
+        std::string menuReceived = ReceiveData2Steps();
+        std::cout << menuReceived;
+
+        /* Process user input */
+        std::string menuRequest = user.HandleMessengerMenu();
+
+        /* Receive solicitation */
+        std::string requestReceived = ReceiveData2Steps();
+        std::cout << requestReceived << std::endl;
+        return true;
+    }
+
+public:
+
+    ApplicationClient() : Client() {
+
+        while(AuthenticateUser()) {
+
+            std::string application = HandleUserAtMenu();
+
+            if(application == "ORGANIZER")
+                while(HandleUserAtOrganizer());
+            if(application == "MESSENGER")
+                while(HandleUserAtMessenger());
+        }
+    }
 };
 
 int main() {

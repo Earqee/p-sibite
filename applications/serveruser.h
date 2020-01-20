@@ -5,6 +5,7 @@
 #include "../util/log.h"
 #include "../socket/socketdata.h"
 #include "../applications/organizer/serverorganizer.h"
+#include "../applications/messenger/servermessenger.h"
 
 class ServerUser {
 
@@ -12,6 +13,7 @@ private:
     int ID, location, status;
     SocketData socketData;
     ServerOrganizer serverOrganizer;
+    ServerMessenger serverMessenger;
 public:
 
     ServerUser(const ServerUser &serverUser) {
@@ -51,15 +53,23 @@ public:
     }
 
     std::string getMenu() {
-        return "Enter <number> to proceed:\n<1> Organizer\n<2> Torrent\nInput: ";
+        return "\nEnter <number> to proceed:\n<1> Organizer\n<2> Messenger\nInput: ";
     }
 
     std::string getOrganizerMenu() {
         return serverOrganizer.getMenu();
     }
 
+    std::string getMessengerMenu() {
+        return serverMessenger.getMenu();
+    }
+
     std::string ProcessOrganizerRequest(std::string &request) {
         return serverOrganizer.ProcessRequest(request);
+    }
+
+    std::string ProcessMessengerRequest(int &userId, std::string &request) {
+        return serverMessenger.ProcessRequest(userId, request);
     }
 
     bool operator<(const ServerUser &serverUser) const {
