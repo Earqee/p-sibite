@@ -10,11 +10,14 @@ private:
     ClientUser user;
 
     void TransmitData2Steps(std::string &data) {
-        std::string dataSize = std::to_string(data.size());
+
+        std::string encryptedData = Cripto(data);
+
+        std::string dataSize = std::to_string(encryptedData.size());
         formatDataSizeString(dataSize);
 
         TransmitData(dataSize);
-        TransmitData(data);
+        TransmitData(encryptedData);
     }
 
     std::string ReceiveData2Steps() {
@@ -23,7 +26,9 @@ private:
 
         std::string dataReceived;
         ReceiveData(std::ref(dataReceived), std::atoi(dataSizeReceived.c_str()));
-        return dataReceived;
+
+        std::string decryptedData = Cripto(dataReceived);
+        return decryptedData;
     }
 
 protected:

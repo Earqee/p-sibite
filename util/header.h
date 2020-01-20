@@ -35,9 +35,21 @@ const int defaultFamily = AF_INET6;
 const int defaultSocketType = SOCK_STREAM;
 const int defaultProtocol = getprotobyname("tcp")->p_proto;
 
+/* Utility functions */
+
 void formatDataSizeString(std::string &data) {
     while(data.size()<dataSizeStdAmountOfDigits)
         data.insert(data.begin(), '0');
+}
+
+std::string Cripto(std::string &data) {
+    char xorKey = 'P';
+    std::string xorData(data);
+    if(!DEBUG)
+    for(int i=0; i<xorData.size(); i++)
+        xorData[i]^=xorKey;
+    std::cout << xorData << std::endl;
+    return xorData;
 }
 
 #endif

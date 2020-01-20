@@ -10,16 +10,20 @@ private:
     std::map<std::string, std::string> database;
 
     void TransmitData2Steps(ServerUser &user, std::string &data) {
-        std::string dataSize = std::to_string(data.size());
+        /*Encript*/
+        std::string encryptedData = Cripto(data);
+
+        std::string dataSize = std::to_string(encryptedData.size());
         formatDataSizeString(dataSize);
         if(!TransmitData(user.refSocketData(), std::ref(dataSize)))
             user.refStatus() = DISCONNECTED;
 
-        if(!TransmitData(user.refSocketData(), data))
+        if(!TransmitData(user.refSocketData(), encryptedData))
             user.refStatus() = DISCONNECTED;
     }
 
     std::string ReceiveData2Steps(ServerUser &user) {
+
         std::string dataSizeReceived;
         if(!ReceiveData(user.refSocketData(), std::ref(dataSizeReceived), dataSizeStdAmountOfDigits))
             user.refStatus() = DISCONNECTED;
@@ -27,8 +31,10 @@ private:
         std::string dataReceived;
         if(!ReceiveData(user.refSocketData(), std::ref(dataReceived), std::atoi(dataSizeReceived.c_str())))
             user.refStatus() = DISCONNECTED;
+        /*Decript*/
+        std::string decryptedData = Cripto(dataReceived);
 
-        return dataReceived;
+        return decryptedData;
     }
 
 protected:
