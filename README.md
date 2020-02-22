@@ -13,7 +13,7 @@ Download the application
 
 Move to folder ./main and create the server application on the desired computer through
 
-    ./server <ip>
+    ./server <port>
 
 Now, not necessarily on the same computer, go to this same repository and begin the client application through
 
