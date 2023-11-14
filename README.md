@@ -1,94 +1,91 @@
-
 ![Test Image 6](images/logo.jpg)
 
-## About the application
+## Sobre a aplicação
 
-Project Bird is an alternative to common aplications of modern world. It is known that countries invest heavily in international espionage, and some of done through backdoors guaranteed by non-transparent legal agreements between private companies and the government as Snowden exposed. Since its creation, Project Bird has guaranteed a virtual private network of communication between the group of logged-in users, ensuring through open code and constant code inspection that no backdoor is opened for eavesdropping.
+Esta aplicação em C++ busca garantir uma rede privada virtual de comunicação entre o grupo de usuários logados. Uma vez logado no sistema, toda a comunicação enviada através da aplicação é criptografada usando uma chave RSA de tamanho definida pelo usuário. Este algoritmo serve como base para implementação de sistemas de comunicação seguros em outras aplicações, podendo ser facilmente integrado com outros sistemas escritos em C e C++.
 
-## Setup
+## Configuração
 
-Download the application
+Baixe a aplicação
 
     git clone https://github.com/Earqee/project-bird
 
-Move to folder ./main and create the server application on the desired computer through
+Mova-se para a pasta ./main e crie a aplicação do servidor no computador desejado através de
 
-    ./server <port>
+    ./server <porta>
 
-Now, not necessarily on the same computer, go to this same repository and begin the client application through
+Agora, não necessariamente no mesmo computador, vá para o mesmo repositório e inicie a aplicação do cliente através de
 
-    ./client <server ipv6 address> <ip>
+    ./client <endereço ipv6 do servidor> <ip>
 
-For example, `./client ::1 7002`and `./client 2804:14d:1283:8e7c:a947:38d6:f03d:9e48 7002` are valid inputs.
+Por exemplo, `./client ::1 7002` e `./client 2804:14d:1283:8e7c:a947:38d6:f03d:9e48 7002` são entradas válidas.
 
-#### Compiling
+#### Compilando
 
-Firstly, install the dependencies [libc6-dev](https://packages.debian.org/search?keywords=libc6-dev), [gcc](https://packages.debian.org/search?keywords=gcc) and [g++](https://packages.debian.org/search?keywords=g%2B%2B) **or** just install the build-essential package.
+Primeiramente, instale as dependências [libc6-dev](https://packages.debian.org/search?keywords=libc6-dev), [gcc](https://packages.debian.org/search?keywords=gcc) e [g++](https://packages.debian.org/search?keywords=g%2B%2B) **ou** apenas instale o pacote build-essential.
 
     sudo apt-get install build-essential 
 
-For server compiling, move to folder ./main and compile through [g++](https://packages.debian.org/search?keywords=g%2B%2B) using
+Para compilar o servidor, vá para a pasta ./main e compile usando [g++](https://packages.debian.org/search?keywords=g%2B%2B) com
 
     g++ -pthread applicationserver.cpp -o server
 
-For client compiling, in the same repository should work also
+Para compilar o cliente, na mesma pasta do repositório, deve funcionar também
 
     g++ -pthread applicationclient.cpp -o client
     
     
-## Features
+## Recursos
 
-### Application differentials
+### Diferenciais da aplicação
 
-- **From scratch**: The only library used is the official GNU C/C++ library, and only the most recent and proven safe functions are used. 
-    > Using any foreign material is hard but offers an advantage, as we ensure that data is not intercepted by backdoors in other libraries. This also becomes an advantage when it is noted that, unlike many applications that follow pre-established interfaces by external sources, we have total mastery of what happens in our application, since everything was implemented from scratch. Some of the things our implemented-from-scrath error handler deals are, for example, system interruption, blocking threads, incomplete packages and sudden disconnection of users.
-    >> A starting point for understanding how we do this is through the function TransmitData(..) at *Socket* class.
+- **Do zero**: A única biblioteca usada é a oficial GNU C/C++, e apenas as funções mais recentes e comprovadamente seguras são utilizadas.
+    > Usar qualquer material estrangeiro é difícil, mas oferece uma vantagem, pois garantimos que os dados não sejam interceptados por backdoors em outras bibliotecas. Isso também se torna uma vantagem quando percebemos que, ao contrário de muitas aplicações que seguem interfaces pré-estabelecidas por fontes externas, temos total domínio sobre o que acontece em nossa aplicação, pois tudo foi implementado do zero. Alguns dos problemas tratados por nosso manipulador de erros implementado do zero incluem, por exemplo, interrupção do sistema, bloqueio de threads, pacotes incompletos e desconexão repentina de usuários.
+    >> Um ponto de partida para entender como fazemos isso é através da função TransmitData(..) na classe *Socket*.
+
+- **Completa paralelismo**: O servidor lida com um número não definido de conexões e resolve consultas de clientes em paralelo.
+    > Criando diferentes threads para receber conexões, autenticar usuários, responder perguntas ou realizar qualquer operação que possa impedir o servidor de responder, os usuários não precisam esperar que o servidor responda a outro usuário, pois para cada usuário o servidor aloca uma thread específica. Isso significa que um usuário pode pesquisar no banco de dados do servidor enquanto outro usuário autentica ou envia uma mensagem para outro usuário. Não há um comportamento predefinido e tudo é feito ao mesmo tempo.
+    >> Um ponto de partida para entender como fazemos isso é através da função HandleUserRequest(..) na classe *ApplicationServer*.
+
+- **Criptografia ponto a ponto**: Toda troca de dados entre os clientes e o servidor é criptografada.
+    > Ataques do tipo homem-no-meio são mais comuns do que pensamos, e devemos nos preocupar mesmo com o tráfego que sai do nosso próprio computador, antes de atingir a camada de rede. Para isso, todos os dados são criptografados antes de atingir ou deixar a camada de rede, e a descriptografia só ocorre dentro de nossa aplicação, esteja os dados no cliente ou no servidor.
+    >> Um ponto de partida para entender como fazemos isso é através da classe *Cripto*.
+
+### Aplicações implementadas
+
+- **Organizador**: mantenha-se atualizado sobre suas tarefas sem precisar compartilhá-las em plataformas não transparentes como o Trello.
+    > Implementa o gerenciamento completo de listas de tarefas ao longo de meses ou semanas. 
+    >> **Planos futuros**: implementar o gerenciamento semanal e mensal usando as estruturas de data e hora fornecidas pela biblioteca GNU C/C++, além de permitir a criação de grupos de desenvolvimento, juntamente com o gerenciamento de tarefas compartilhadas por esses grupos.
     
-- **Complete parallelism**: Server handles a non-defined number of connections and resolve client queries in parallel.
-    > Creating different threads to receive connections, authenticate users, answer questions or do any operation that can stop the server from responding., users do not need to wait for the server to respond to another user, since for each user the server allocates a specific thread. This means that an user can search the server database while another user authenticates or sends a message to other user. There is no predefined behavior and everything is done at the same time.
-    >> A starting point for understanding how we do this is through the function HandleUserRequest(..) at *ApplicationServer* class.
+- **Mensageiro**: converse com quem quiser sem se preocupar em ter seu histórico de mensagens solicitado pelo governo.
+    > Implementa um sistema simples para a troca de mensagens entre usuários autenticados.
+    >> **Planos futuros**: implementar bate-papos em grupo de usuários e envio de arquivos.
 
-- **Point-to-point encryption**: All data exchange between the clients and the server is encrypted.
-    > Man-in-the-middle attacks are more common than we think and we should be concerned even with the traffic that comes out of our own computer, before reaching the network layer. For this, all data is encrypted before reaching or leaving the network layer, and the decryption only happens within our application, whether the data is on the client or on the server.
-    >> A starting point for understanding how we do this is through *Cripto* class.
+## Protocolos
 
-### Implemented applications
+Foram desenvolvidos protocolos para a troca de mensagens entre o usuário e o servidor. Como o servidor sempre mantém em qual aplicação o cliente está, garantimos que protocolos com assinaturas semelhantes não implicam em comportamento indesejado.
 
-- **Organizer**: stay up to date on your tasks without having to share them on non-transparent platforms like Trello.
-    > Implements full task list management over periods of months or weeks. 
-    >> **Future plans**: implement week and month management using the date and time structures provided by the GNU C/C++ library. Also, allow the creation of development groups, along with the management of tasks that are shared by these groups.
-    
-- **Messenger**: talk to whoever you want without worrying about having your message history requested by the government.
-    > Implements a simple system for exchanging messages between authenticated users.
-    >> **Future plans**: implement user group chats and file submissions.
+A tabela abaixo ilustra o comportamento da aplicação organizadora. O cliente envia uma solicitação ao servidor (coluna central) e o servidor responde com uma resposta apropriada (coluna à direita). Por padrão, definimos que se ocorrerem erros, retornamos a resposta *ERROR* para tratamento.
+ela abaixo ilustra o comportamento da aplicação organizadora. O cliente envia uma solicitação ao servidor (coluna central) e o servidor responde com uma resposta apropriada (coluna à direita). Por padrão, definimos que se ocorrerem erros, retornamos a resposta *ERROR* para tratamento.
 
-## Protocols
-
-Protocols were developed for the exchange of messages between the user and the server. As the server always keeps in which application the client is, we guarantee that protocols with similar signatures do not imply unwanted behavior.
-
-The table below illustrates the behavior of the organizer application. The client sends a request to the server (central column) and the server responds with an appropriate response (rightmost column). By default, we define that if errors occur, we return the response *ERROR* for treatment.
-
-| Description | (firstly) Client sends | (secondly) Server response |
+| Descrição | (primeiramente) Cliente envia | (em segundo lugar) Resposta do servidor |
 | --- | --- | --- | 
-| Add task to day | `ADD <day> <title>` | `SUCCESS` | 
-| Delete i-th task from day | `DEL <day> <index>` | `SUCCESS` | 
-| Edit i-th day from day to title | `EDIT <day> <index> <title>` | `SUCCESS` | 
-| Get all tasks of day | `DAY <day>` | formated sequence of `<title>` | 
-| Get all tasks of week | `WEEK` | formated sequence of `<day> <title>` | 
-| Quit organizer menu | `QUIT` | *no response* | 
+| Adicionar tarefa ao dia | `ADD <dia> <título>` | `SUCCESS` | 
+| Excluir i-ésima tarefa do dia | `DEL <dia> <índice>` | `SUCCESS` | 
+| Editar i-ésima tarefa do dia para título | `EDIT <dia> <índice> <título>` | `SUCCESS` | 
+| Obter todas as tarefas do dia | `DAY <dia>` | sequência formatada de `<título>` | 
+| Obter todas as tarefas da semana | `WEEK` | sequência formatada de `<dia> <título>` | 
+| Sair do menu organizador | `QUIT` | *sem resposta* | 
 
-Below is the table that illustrates the behavior of the messenger application.
+Abaixo está a tabela que ilustra o comportamento da aplicação de mensagens.
 
-| Description | (firstly) Client sends | (secondly) Server response |
+| Descrição | (primeiramente) Cliente envia | (em segundo lugar) Resposta do servidor |
 | --- | --- | --- | 
-| Set yourself available to chat |  `ENROLL` | `SUCCESS` | 
-| Get users available to chat | `USERS` | formatted sequence of `<login> <id>` | 
-| Get messages from user with given id | `FROM <id>` | formated sequence of `<message>` | 
-| Send message to user with given id | `SEND <id> <message>` | `SUCCESS` | 
-| Quit messenger menu | `QUIT` | *no response* | 
+| Tornar-se disponível para conversar |  `ENROLL` | `SUCCESS` | 
+| Obter usuários disponíveis para conversar | `USERS` | sequência formatada de `<login> <id>` | 
+| Obter mensagens do usuário com o ID fornecido | `FROM <id>` | sequência formatada de `<mensagem>` | 
+| Enviar mensagem para o usuário com o ID fornecido | `SEND <id> <mensagem>` | `SUCCESS` | 
+| Sair do menu do mensageiro | `QUIT` | *sem resposta* | 
 
-There is also the possibility of having a client subtly closing the application in such a way that there is no window for sending a `QUIT` message to the server. In this case, we use the fact that the next socket transmission/reception fail, and procced accordingly to assign a status of `DISCONNECTED` to the user, which implies removing the user of all data structures allocated by the server.
- 
-## License
-
-[GNU General Public License v3.0.](https://github.com/Earqee/project-bird/blob/master/LICENSE)
+Existe também a possibilidade de um cliente fechar sutilmente a aplicação de tal maneira que não haja janela para enviar uma mensagem `QUIT` para o servidor. Nesse caso, usamos o fato de que a próxima transmissão/recepção de soquete falha e procedemos de acordo para atribuir um status de `DISCONNECTED` ao usuário, o que implica na remoção do usuário de todas as estruturas de dados alocadas pelo servidor.
+ (https://github.com/Earqee/project-bird/blob/master/LICENSE)
