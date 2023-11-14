@@ -1,5 +1,3 @@
-![Test Image 6](images/logo.jpg)
-
 ## Sobre a aplicação
 
 Esta aplicação em C++ busca garantir uma rede privada virtual de comunicação entre o grupo de usuários logados. Uma vez logado no sistema, toda a comunicação enviada através da aplicação é criptografada usando uma chave RSA de tamanho definida pelo usuário. Este algoritmo serve como base para implementação de sistemas de comunicação seguros em outras aplicações, podendo ser facilmente integrado com outros sistemas escritos em C e C++.
