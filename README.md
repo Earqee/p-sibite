@@ -89,3 +89,8 @@ Abaixo está a tabela que ilustra o comportamento da aplicação de mensagens.
 
 Existe também a possibilidade de um cliente fechar sutilmente a aplicação de tal maneira que não haja janela para enviar uma mensagem `QUIT` para o servidor. Nesse caso, usamos o fato de que a próxima transmissão/recepção de soquete falha e procedemos de acordo para atribuir um status de `DISCONNECTED` ao usuário, o que implica na remoção do usuário de todas as estruturas de dados alocadas pelo servidor.
  (https://github.com/Earqee/project-bird/blob/master/LICENSE)
+
+
+## Agradecimentos
+
+Este projeto foi desenvolvido e revisado pelos discentes de Engenharia de Computação Thiago José e João Arthur, com revisão final pelo Prof. Dr. Leandro Dias.
