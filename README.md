@@ -91,4 +91,4 @@ Existe também a possibilidade de um cliente fechar sutilmente a aplicação de 
 
 ## Agradecimentos
 
-Este projeto foi desenvolvido e revisado pelos discentes de Engenharia de Computação Thiago José e João Arthur, com revisão final pelo Prof. Dr. Leandro Dias.
+Este projeto foi desenvolvido e revisado pelos discentes de Engenharia de Computação Thiago José e João Arthur.
